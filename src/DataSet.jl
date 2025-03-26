@@ -105,7 +105,13 @@ function load(f::String,vendor::Symbol)
         tcoord = range(0.0,step=1.0/params["SW_h"],length=length(rawdata))
         return params,SpectData(rawdata,(tcoord,))
     elseif vendor == :JEOL
-        error("Not yet implemented")
+        io = open(f,"r")
+        header,params,data = FileIO.readJEOL(io)
+        n=length(data)
+        cdata = data[1:n>>1] - im*data[n>>1+1:end]
+        tcoord=range(0.0,step=1.0/params["X_SWEEP"][3],length=length(cdata))
+        close(io)
+        return params, SpectData(cdata,(tcoord,))
     else 
         error("Unsupported data format")
     end

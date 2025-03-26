@@ -1,4 +1,4 @@
-name    =   "DMEM culture medium"
+name    =   "Spheroid culture medium"
 format  =   "JEOL"
 tags    =   ["microfluidic NMR", "cells", "metabolomics"]
 author  =   "Yaping Li, KIT"

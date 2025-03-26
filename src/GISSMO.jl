@@ -58,6 +58,40 @@ function Hamiltonian(system::XMLElement;freq=600.0,ctr=4.8,maxSpin=25)
     nspin,H
 end
 
+@doc """
+    function SpinMatrix(id::String)
+
+returns the spin matrix, with chemical shifts (on the diagonal) and J-couplings (on the off-diagonal elements)
+for the GISSMO entry specified by the identifier `id`.
+"""
+function SpinMatrix(id::String)
+    xs=String(HTTP.request("GET","https://gissmo.bmrb.io/entry/$(id)/simulation_1/spin_simulation.xml").body)
+    xdoc=parse_string(xs)
+    system=root(xdoc)
+    xspin = system["coupling_matrix"][1]
+    chem_shifts = Array{Float64,1}([])
+    xcs = xspin["chemical_shifts_ppm"][1]["cs"]
+    chem_shifts = [parse(Float64,attribute(c,"ppm")) for c in xcs]
+    nspin=length(chem_shifts)
+
+    S = zeros(nspin,nspin)
+    for k in 1:nspin
+        S[k,k]=chem_shifts[k]
+    end    
+    
+    xJs=xspin["couplings_Hz"][1]["coupling"]
+    for c in xJs
+        k=parse(Int64,attribute(c,"from_index"))
+        l=parse(Int64,attribute(c,"to_index"))
+        J=parse(Float64,attribute(c,"value"))
+        
+        S[k,l] = J
+        S[l,k] = J
+
+    end 
+    return S
+end
+
 """
     function search(term::String)
 

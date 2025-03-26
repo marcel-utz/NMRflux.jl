@@ -214,5 +214,5 @@ end
 
 function (pc::PhaseCorrect)(x::SpectData{T,1}) where {T<:Number}
     c = exp(im*pc.ph0).* exp.(im*pc.ph1.*coords(x,1))
-    return x.*c 
+    return x.*c
 end
