@@ -202,9 +202,8 @@ should be applied to.
 abstract type NMRProcessor1D <: NMRProcessor end
 
 function (np1d::NMRProcessor1D)(A::SpectData{T,N}) where {T,N}
-    return mapslices(np1d,A,dims=np1d.dim)
+    return SpectData(mapslices(np1d,A,dims=np1d.dim),coords(A))
 end
-
 
 struct PhaseCorrect <: NMRProcessor1D
     ph0::Float64
