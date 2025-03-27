@@ -1,0 +1,5 @@
+[Hamiltonian]
+    nCouplings = 2                  # average number of couplings per spin
+    shiftRange = [0.0,10.0]         # range of chemical shifts
+    Jstd = 12.0                     # range of J couplings
+    baseFreq = 600.0                # base frequency in MHz

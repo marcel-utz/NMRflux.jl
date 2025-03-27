@@ -1,0 +1,28 @@
+[Hamiltonian]
+    nCouplings = 2                  # average number of couplings per spin
+    shiftRange = [0.0,10.0]         # range of chemical shifts
+    Jstd = 12.0                     # range of J couplings
+    baseFreq = 700.0                # base frequency in MHz
+
+[FID]
+    SWH  = 10000                    # spectral width in Hz
+    TD   =  16384                   # number of complex data points
+    LWmean = 3.0                    # Line width mean (Hz)
+    LWstd =  10.0                   # Line width standard deviation in Hz
+
+[Artefacts]
+    phase0error = 360.0             # max phase error (degrees)
+    phase1error = 360.0             # max 1st order phase error (degrees over full spectral width)
+    solventArtefact = 100.0         # intensity of solvent artefacts
+    solventWidth = 100.0            # max width of solvent artefact (Hz)
+    baselineArtefact = 10.0         # intensity of baseline distortion
+    baselineDuration = 0.0002       # baseline distortion artefact duration (seconds)
+    SNR = 500.0                     # Signal/noise level (ratio of first point amplitude to rms noise)
+    
+[Batch]
+    size  = 25000                    # number of pairs to produce
+    nFIDs = 25000                    # number of FIDs to generate
+    alpha = 3                        # width of exponential concentration distribution
+    filename = "Batch16k"            # name of the .csv file to produce
+    fileType = "NPZ"
+    maxNspin = 10                    # size of the largest spin system
