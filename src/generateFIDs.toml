@@ -20,8 +20,8 @@
     SNR = 500.0                     # Signal/noise level (ratio of first point amplitude to rms noise)
     
 [Batch]
-    size  = 25000                    # number of pairs to produce
-    nFIDs = 25000                    # number of FIDs to generate
+    size  = 250                    # number of pairs to produce
+    nFIDs = 250                    # number of FIDs to generate
     alpha = 3                        # width of exponential concentration distribution
     filename = "Batch16k"            # name of the .csv file to produce
     fileType = "NPZ"
