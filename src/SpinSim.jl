@@ -334,7 +334,6 @@ function Spectrum(ρ,H,Ψ;tol=1e-3)
         D,Fv=Arpack.eigs(H,nev=100,ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
     end
     Q=sparse(Fv) ;
-    NMR.chop!(Q) ;
     F=Q'*Ψ*Q;
     ρe=Q'*ρ*Q;
     freqs=Array{Float64,1}([])
