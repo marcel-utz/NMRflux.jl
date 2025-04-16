@@ -326,14 +326,15 @@ the initial density operator ρ, the Hamiltonian H, and the observation operator
 arrays. `tol` is a cutoff; transitions with absolute amplitudes less than
 this value are suppressed.
 """
-function Spectrum(ρ,H,Ψ;tol=1e-3)
+function Spectrum(ρ,H,Ψ;tol=1e-3,nev=400)
     n,m=size(H)
-    if n<256
+    if n<4096
         D,Fv=eigen(collect(H))
     else
-        D,Fv=Arpack.eigs(H,nev=100,ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
+        D,Fv=Arpack.eigs(H,nev=nev,ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
     end
     Q=sparse(Fv) ;
+    droptol!(Q,1e2*eps(1.0))
     F=Q'*Ψ*Q;
     ρe=Q'*ρ*Q;
     freqs=Array{Float64,1}([])
