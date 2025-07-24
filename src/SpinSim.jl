@@ -349,6 +349,15 @@ function Spectrum(ρ,H,Ψ;tol=1e-3,nev=400)
     return (freqs,ints)
 end
 
+@doc raw"""
+    clorentzian(x0::Float64,σ::Float64,x::Float64)
+
+returns the complex Lorentzian
+
+``L(x) = \sqrt{\sigma}\dfrac{1+i\sqrt{\sigma}(x-x_0)}{1+\sigma(x-x_0)^2}``
+"""
+clorentzian(x0::Float64,σ::Float64,x::Float64) =  1.0/π*sqrt(σ)*(1.0+sqrt(σ)*im*(x-x0))/(1.0+σ*(x-x0)^2)
+
 
 @doc raw"""
     function PeakSpect(p,i,r;lw=0.0001)
@@ -358,13 +367,13 @@ array `p` and (complex) amplitudes in array `i`, over the
 range `r`, which can be either an array or a range. lw` is the line width.
 A `Data1D` object is returned.
 """
-# function PeakSpect(p,i,r;lw=0.0001)
-#     s=zeros(ComplexF64,length(r))
-#     for k=1:length(p)
-#         s .+= i[k].*NMR.clorentzian.(p[k],(1/lw)^2,r)
-#     end
-#     return NMR.Data1D(s,first(r),last(r))
-# end
+function PeakSpect(p,i,r;lw=0.0001)
+    s=zeros(ComplexF64,length(r))
+    for k=1:length(p)
+        s .+= i[k].*NMRlab.clorentzian.(p[k],(1/lw)^2,r)
+    end
+    return SpectData{ComplexF64,1}(s,(r,))
+end
 
 @doc raw"""
    function expm(A::SparseMatrixCSC) 
