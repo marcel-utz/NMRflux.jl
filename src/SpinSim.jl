@@ -358,13 +358,13 @@ array `p` and (complex) amplitudes in array `i`, over the
 range `r`, which can be either an array or a range. lw` is the line width.
 A `Data1D` object is returned.
 """
-function PeakSpect(p,i,r;lw=0.0001)
-    s=zeros(ComplexF64,length(r))
-    for k=1:length(p)
-        s .+= i[k].*NMR.clorentzian.(p[k],(1/lw)^2,r)
-    end
-    return NMR.Data1D(s,first(r),last(r))
-end
+# function PeakSpect(p,i,r;lw=0.0001)
+#     s=zeros(ComplexF64,length(r))
+#     for k=1:length(p)
+#         s .+= i[k].*NMR.clorentzian.(p[k],(1/lw)^2,r)
+#     end
+#     return NMR.Data1D(s,first(r),last(r))
+# end
 
 @doc raw"""
    function expm(A::SparseMatrixCSC) 
