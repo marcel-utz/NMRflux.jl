@@ -313,13 +313,13 @@ function readJEOL(s::IOStream)
     year = (b[1]>>1)+1990
     month = ((b[1]<<3) & 0b00001000) + (b[2]>>5)
     day = b[3] & 0b00011111
-    header["creationTime"] = Dates.Date("$year-$month-$day","yyyy-mm-dd")
+    header["creationTime"] = "$year-$month-$day"
 
     read!(s,b)
     year = (b[1]>>1)+1990
     month = ((b[1]<<3) & 0b00001000) + (b[2]>>5)
     day = b[3] & 0b00011111
-    header["revisionTime"] = Dates.Date("$year-$month-$day","yyyy-mm-dd")
+    header["revisionTime"] = "$year-$month-$day"
 
     header["nodeName"] = strip(String(join(Char.(read(s,16)))),['\0'])
     header["site"] = strip(String(join(Char.(read(s,128)))),['\0'])
