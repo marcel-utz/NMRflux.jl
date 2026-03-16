@@ -1,7 +1,7 @@
 module NMRlab
 
     export SpectData,coords,load
-    export NMRProcessor, Chain, FourierTransform, Apodize, ZeroFill, PhaseCorrect
+    export NMRProcessor, Chain, FourierTransform, Apodize, ZeroFill, PhaseCorrect, MedianBaselineCorrect
     export SpinSim
     export GISSMO
 

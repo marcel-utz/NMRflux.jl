@@ -115,7 +115,32 @@ function (ap::Apodize)(A::SpectData)
 end
 
 
-struct MedianBaselineCorrect <: NMRProcessor
+@doc raw"""
+    abstract type NMRProcessor1D <: NMRProcessor
+
+Data type for processing tools that apply to a single dimension, i.e., that are inherently
+1D. They need to be defined as functors that act on a `AbstractVector{T}`. They must
+contain a field `.dim` that indicates which dimension in a multidimensional array they
+should be applied to.
+"""
+abstract type NMRProcessor1D <: NMRProcessor end
+
+function (np1d::NMRProcessor1D)(A::SpectData{T,N}) where {T,N}
+    return SpectData(mapslices(np1d,A,dims=np1d.dim),A.coord)
+end
+
+struct PhaseCorrect <: NMRProcessor1D
+    ph0::Float64
+    ph1::Float64
+    dim::Int32
+end
+
+function (pc::PhaseCorrect)(x::SpectData{T,1}) where {T<:Number}
+    c = exp(im*pc.ph0).* exp.(im*pc.ph1.*coords(x,1))
+    return x.*c
+end
+
+struct MedianBaselineCorrect <: NMRProcessor1D
     dim::Int64
     wdw::Int64
     gauss::Vector{Float64}
@@ -140,6 +165,18 @@ function extrema(X::AbstractArray{T,N}, dim::Integer) where {T,N}
 
     minmaxima = (X .> left .&& X .> right) .|| (X .< left .&& X .< right)
     return X[minmaxima]
+end
+
+wrap(n,l)=[mod(k,l) for k in n]
+
+function extrema(X::AbstractArray{T,1}) where {T<:Number}
+    Y=Array{T,1}()
+    for k=2:(length(X)-1)
+        if (X[k]>X[k-1] && X[k]>X[k+1]) || X[k]<X[k-1] && X[k]<X[k+1]
+            push!(Y,X[k])
+        end
+    end
+    return Y
 end
 
 
@@ -173,45 +210,16 @@ import Statistics
 subtract baseline for the real part of `s` by the algorithm of M. S. Friedrichs,
 *Journal of Biomolecular NMR*,  **5** (1995) 147  153.
 """
-function (mb::MedianBaselineCorrect)(s::SpectData)
+function (mb::MedianBaselineCorrect)(s::SpectData{T,1}) where {T<:Number}
     r=real(s.dat)
-    ax=axes(s,mb.dim)
-
-    indices=Any[axes(s)...]
-    b = [ begin
-           indices[mb.dim]= max(k-mb.wdw,1):min(k+mb.wdw,length(ax))
-           Statistics.median(extrema(view(r,indices...),mb.dim))
-         end
-
-        for k in ax
-    ]
-    e2kernel=exp.( ((-mb.wdw:mb.wdw)./mb.wdw).^2)
-    e2kernel ./= sum(e2kernel)
-    baseline = conv(cat(b,dims=mb.dim) , e2kernel)
-    return s-baseline
-end
-
-@doc raw"""
-    abstract type NMRProcessor1D <: NMRProcessor
-
-Data type for processing tools that apply to a single dimension, i.e., that are inherently
-1D. They need to be defined as functors that act on a `AbstractVector{T}`. They must
-contain a field `.dim` that indicates which dimension in a multidimensional array they
-should be applied to.
-"""
-abstract type NMRProcessor1D <: NMRProcessor end
-
-function (np1d::NMRProcessor1D)(A::SpectData{T,N}) where {T,N}
-    return SpectData(mapslices(np1d,A,dims=np1d.dim),coords(A))
-end
-
-struct PhaseCorrect <: NMRProcessor1D
-    ph0::Float64
-    ph1::Float64
-    dim::Int32
-end
-
-function (pc::PhaseCorrect)(x::SpectData{T,1}) where {T<:Number}
-    c = exp(im*pc.ph0).* exp.(im*pc.ph1.*coords(x,1))
-    return x.*c
+    L=length(r)
+    b=zeros(L)
+    c=zeros(L)
+    for k=1:L
+        b[k]=Statistics.median(extrema(r[ wrap(k.+(-mb.wdw:mb.wdw),1:L)]))
+    end
+    for k=1:length(r)
+        c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)])/(2*mb.wdw+1)
+    end
+    return s-c
 end
