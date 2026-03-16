@@ -46,6 +46,12 @@ of the dimensions along which a Fourier transform will be computed.
 The corresponding coordinates are automatically replaced by frequencies,
 based on the Nyqvist theorem. The zero frequency appears in the centre of the
 spectrum. 
+
+The function produces a FFTW plan for the Fourier transform, which is stored ^in
+the returned `FourierTransform` object. This makes it more efficient to apply
+the Fourier transform to multiple data sets of the same size. If the size of the
+data set changes, a new `FourierTransform` object should be created.
+
 """
 function FourierTransform(SI::Vector,dims::Vector; fftshift=true)
     dummy=zeros(ComplexF64,SI...)
@@ -143,13 +149,14 @@ end
 struct MedianBaselineCorrect <: NMRProcessor1D
     dim::Int64
     wdw::Int64
+    stp::Int64
     gauss::Vector{Float64}
 end
 
-function MedianBaselineCorrect(dim::Integer;wdw=1024)
+function MedianBaselineCorrect(dim::Integer;wdw=4096, stp=32)
     g=exp.(-((-wdw:wdw)./wdw).^2)
     g=g/sum(g)
-    return MedianBaselineCorrect(dim,wdw,g)
+    return MedianBaselineCorrect(dim,wdw,stp,g)
 end
 
 @doc """
@@ -215,10 +222,90 @@ function (mb::MedianBaselineCorrect)(s::SpectData{T,1}) where {T<:Number}
     b=zeros(L)
     c=zeros(L)
     for k=1:L
-        b[k]=Statistics.median(extrema(r[ wrap(k.+(-mb.wdw:mb.wdw),1:L)]))
+        b[k]=Statistics.median(extrema(r[ wrap(k.+(-mb.wdw:mb.stp:mb.wdw),1:L)]))
     end
     for k=1:length(r)
         c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)]) 
     end
-    return SpectData(c, s.coord)
+    return SpectData(r.-c, s.coord)
 end
+
+
+@doc raw"""
+    function Derivative(dim::Integer)
+
+returns a processor that computes the first derivative of a spectrum along the dimension `dim`.
+"""
+struct Derivative <: NMRProcessor1D 
+    dim::Int64
+end
+
+function (der::Derivative)(spect::SpectData{T,1}) where {T<:Number}
+    s=spect.dat
+    inc=step(spect.coord[1])
+    d = 1.0/12*(8*[s[2:end];0]-8*[0;s[1:(end-1)]] + [s[3:end];0;0] - [0;0;s[1:(end-2)]] )/inc
+    return SpectData(d, spect.coord)
+end
+
+ent(x) = x*log(x)
+
+@doc raw"""
+    function `entropy(s::SpectData{T,1})` 
+        
+computes the entropy of the first derivative
+in the real part of an
+NMR spectrum as defined by Chen et al. in
+*Journal of Magnetic Resonance* **158** (2002) 164–168.
+This quantity can be optimised with respect to zero- and first-order
+phase correction for automatic (unsupervised) phase correction.
+"""
+function entropy(s::SpectData{T,1}) where {T<:Number}
+    h= s .|> real |> Derivative(1)  .|> abs
+    h/=sum(h)
+    return -sum(ent.(h.dat))
+end
+
+
+import Optim
+
+@doc raw"""
+    function AutoPhaseCorrectChen(dim::Integer;verbose=false,γ=0.0)
+
+returns a processor that performs automatic phase correction of a spectrum along
+the dimension `dim` using the minimum entropy algorithm by Chen et al. in
+*Journal of Magnetic Resonance* **158** (2002) 164–168. The parameter `γ` can be
+used to add a penalty term to the optimisation target, which penalises negative
+peaks in the spectrum. This can be useful to avoid overcorrection in noisy
+spectra.
+"""
+struct AutoPhaseCorrectChen <: NMRProcessor1D
+    dim::Int64
+    verbose::Bool
+    γ::Float64
+end
+
+function AutoPhaseCorrectChen(dim::Integer;verbose=false,γ=1.0e-5)
+    return AutoPhaseCorrectChen(dim,verbose,γ)
+end
+
+# penalty(x) computes the sum of squares of all negative points in x
+function penalty(x)
+    # x /= sum(abs.(x))
+    return sum(k<0.0 ? k*k : 0.0 for k in x)
+end
+
+# this is the minimisation target for automatic phase correction
+function goalfun(x,spect,γ=1.0e-5)
+    pc = PhaseCorrect(x...,1)
+    c = pc(spect) 
+    return entropy(c)+γ*penalty(real.(c.dat));
+end
+
+function (apc::AutoPhaseCorrectChen)(spect::SpectData{T,1}) where {T<:Number}
+  result=Optim.optimize(x->goalfun(x,spect,apc.γ),[0.0,0.0],Optim.NelderMead(),Optim.Options(show_trace=false,g_tol=1.0e-6));
+  if apc.verbose print(result) end;
+  pc=PhaseCorrect( Optim.minimizer(result)...,1);
+  scorr = pc(spect);
+  return scorr ;
+end
+
