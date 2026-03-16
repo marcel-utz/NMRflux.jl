@@ -220,5 +220,5 @@ function (mb::MedianBaselineCorrect)(s::SpectData{T,1}) where {T<:Number}
     for k=1:length(r)
         c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)]) 
     end
-    return SpectData(r .- c, s.coord)
+    return SpectData(c, s.coord)
 end
