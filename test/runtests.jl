@@ -34,3 +34,4 @@ end
     @test size(ftdat) == size(ftdat.coord[1])
 end
 
+
