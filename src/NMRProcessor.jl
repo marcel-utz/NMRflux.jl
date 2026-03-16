@@ -201,7 +201,6 @@ function conv(x::AbstractVector{T1}, y::AbstractVector{T2} ) where {T1,T2}
     b = [ sum( ((k+l>0 && k+l<=N) ? x[k+l] : zero(T1) ) * y[l+M+1] for l=lrange)   for k=1:N]
 end
 
-
 import Statistics
 
 @doc raw"""
@@ -219,7 +218,7 @@ function (mb::MedianBaselineCorrect)(s::SpectData{T,1}) where {T<:Number}
         b[k]=Statistics.median(extrema(r[ wrap(k.+(-mb.wdw:mb.wdw),1:L)]))
     end
     for k=1:length(r)
-        c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)])/(2*mb.wdw+1)
+        c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)]) 
     end
-    return c
+    return SpectData(r .- c, s.coord)
 end
