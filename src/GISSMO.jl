@@ -11,6 +11,7 @@ module GISSMO
 using HTTP
 using LightXML
 import JSON
+import LinearAlgebra
 using  NMRlab.SpinSim
 
 
@@ -20,6 +21,7 @@ export Hamiltonian, search
 """
     function Hamiltonian(fn::String;freq=600.0,ctr=4.8)
     function Hamiltonian(system::XMLElement;freq=600.0,ctr=4.8)
+    function Hamiltonian(SpM::AbstractMatrix{T};freq=600.0,ctr=4.8) where {T<:Number}
 
 computes the Hamiltonian of an entry in the GISSMO database and returns it in the natural basis as a sparse matrix.
 `fn` is the GISSMO reference name of the compound. Keyword parameters are used to indicate spectrometer
@@ -56,6 +58,22 @@ function Hamiltonian(system::XMLElement;freq=600.0,ctr=4.8,maxSpin=25)
         H.+=2pi*J*OpJstrong(nspin,k,l)
     end
     nspin,H
+end
+
+function Hamiltonian(SpM::AbstractMatrix{T};freq=600.0,ctr=4.8) where {T<:Number}
+    n,m=size(SpM)
+    if n!=m
+        error("Spin matrix must be square.")
+    end
+    chem_shifts = LinearAlgebra.diag(SpM)
+    H=sum(j->2pi*freq*(chem_shifts[j]-ctr)*SpinOp(n,Sz,j),1:n)
+    for k in 1:(n-1)
+        for l in (k+1):n
+            J=SpM[k,l]
+            H.+=2pi*J*OpJstrong(n,k,l)
+        end
+    end
+    n,H
 end
 
 @doc """
