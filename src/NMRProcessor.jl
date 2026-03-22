@@ -26,7 +26,7 @@ returns a chain of processing tools, which will be
 applied in order (the first in the argument list is 
 applied first)
 """
-Chain(fs::Vararg{NMRProcessor}) = reduce(∘, reverse(fs))
+Chain(fs::Vararg{Function}) = reduce(∘, reverse(fs))
 
 
 import FFTW
@@ -154,7 +154,7 @@ struct MedianBaselineCorrect <: NMRProcessor1D
 end
 
 function MedianBaselineCorrect(dim::Integer;wdw=4096, stp=32)
-    g=exp.(-((-wdw:wdw)./wdw).^2)
+    g=exp.(-25*((-wdw:wdw)./wdw).^2)
     g=g/sum(g)
     return MedianBaselineCorrect(dim,wdw,stp,g)
 end
@@ -162,7 +162,7 @@ end
 @doc """
     function extrema(X::AbstractArray{T,N}, dim::Integer) 
 
-returns an array of all extremal values of `X` along the dimension `dim`.
+returns an array of booleans indicating all extremal values of `X` along the dimension `dim`.
 """
 function extrema(X::AbstractArray{T,N}, dim::Integer) where {T,N} 
     shifter=zeros(Int64,ndims(X))
@@ -171,21 +171,10 @@ function extrema(X::AbstractArray{T,N}, dim::Integer) where {T,N}
     right=circshift(X,shifter)
 
     minmaxima = (X .> left .&& X .> right) .|| (X .< left .&& X .< right)
-    return X[minmaxima]
+    return minmaxima
 end
 
 wrap(n,l)=[mod(k,l) for k in n]
-
-function extrema(X::AbstractArray{T,1}) where {T<:Number}
-    Y=Array{T,1}()
-    for k=2:(length(X)-1)
-        if (X[k]>X[k-1] && X[k]>X[k+1]) || X[k]<X[k-1] && X[k]<X[k+1]
-            push!(Y,X[k])
-        end
-    end
-    return Y
-end
-
 
 
 @doc"""
@@ -205,7 +194,7 @@ function conv(x::AbstractVector{T1}, y::AbstractVector{T2} ) where {T1,T2}
     N=length(x)
     M=length(y)>>1
     lrange = isodd(length(y)) ? (-M:M) : (-M:(M-1))
-    b = [ sum( ((k+l>0 && k+l<=N) ? x[k+l] : zero(T1) ) * y[l+M+1] for l=lrange)   for k=1:N]
+    b = [ sum( ((k+l>0 && k+l<=N) ? x[k+l] : last(x) ) * y[l+M+1] for l=lrange)   for k=1:N]
 end
 
 import Statistics
@@ -217,16 +206,11 @@ subtract baseline for the real part of `s` by the algorithm of M. S. Friedrichs,
 *Journal of Biomolecular NMR*,  **5** (1995) 147  153.
 """
 function (mb::MedianBaselineCorrect)(s::SpectData{T,1}) where {T<:Number}
-    r=real(s.dat)
-    L=length(r)
-    b=zeros(L)
-    c=zeros(L)
-    for k=1:L
-        b[k]=Statistics.median(extrema(r[ wrap(k.+(-mb.wdw:mb.stp:mb.wdw),1:L)]))
-    end
-    for k=1:length(r)
-        c[k]=sum(mb.gauss.*b[wrap(k.+(-mb.wdw:mb.wdw),1:L)]) 
-    end
+    r=real.(s.dat)
+    xtr = extrema(r,1)
+    xind = findall(xtr)  # find the indices of all extrema in the spectrum
+    bl=[Statistics.median(r[filter(x-> (x>=k-mb.wdw) && (x<=k+mb.wdw), xind)]) for k in 1:length(s.dat)] # find the index of the extremum closest to the 32500th point (the artifact)
+    c=conv(bl,mb.gauss,1)
     return SpectData(r.-c, s.coord)
 end
 
@@ -249,6 +233,8 @@ end
 
 ent(x) = x*log(x)
 
+import Optim
+
 @doc raw"""
     function `entropy(s::SpectData{T,1})` 
         
@@ -260,13 +246,18 @@ This quantity can be optimised with respect to zero- and first-order
 phase correction for automatic (unsupervised) phase correction.
 """
 function entropy(s::SpectData{T,1}) where {T<:Number}
-    h= s .|> real |> Derivative(1)  .|> abs
+    h= s.dat .|> real  .|> abs
     h/=sum(h)
-    return -sum(ent.(h.dat))
+    return -sum(ent.(h))/length(h)
 end
 
 
-import Optim
+
+struct AutoPhaseCorrectChen <: NMRProcessor1D
+    dim::Int64
+    verbose::Bool
+    γ::Float64
+end
 
 @doc raw"""
     function AutoPhaseCorrectChen(dim::Integer;verbose=false,γ=0.0)
@@ -278,12 +269,6 @@ used to add a penalty term to the optimisation target, which penalises negative
 peaks in the spectrum. This can be useful to avoid overcorrection in noisy
 spectra.
 """
-struct AutoPhaseCorrectChen <: NMRProcessor1D
-    dim::Int64
-    verbose::Bool
-    γ::Float64
-end
-
 function AutoPhaseCorrectChen(dim::Integer;verbose=false,γ=1.0e-5)
     return AutoPhaseCorrectChen(dim,verbose,γ)
 end
@@ -295,17 +280,32 @@ function penalty(x)
 end
 
 # this is the minimisation target for automatic phase correction
-function goalfun(x,spect,γ=1.0e-5)
-    pc = PhaseCorrect(x...,1)
+function goalfun(x,spect,γ)
+    pc = PhaseCorrect(x[1],x[2]/1000,1)
     c = pc(spect) 
     return entropy(c)+γ*penalty(real.(c.dat));
 end
 
 function (apc::AutoPhaseCorrectChen)(spect::SpectData{T,1}) where {T<:Number}
-  result=Optim.optimize(x->goalfun(x,spect,apc.γ),[0.0,0.0],Optim.NelderMead(),Optim.Options(show_trace=false,g_tol=1.0e-6));
-  if apc.verbose print(result) end;
-  pc=PhaseCorrect( Optim.minimizer(result)...,1);
-  scorr = pc(spect);
+    dspect = Derivative(1)(spect)
+    # do a 1D optimisation of the zero-order pc first 
+    res0  = Optim.optimize(x->goalfun([x[1],0.0],dspect,apc.γ),[0.0],
+                Optim.Options(show_trace=false,g_tol=1.0e-9));
+    
+    if apc.verbose print(res0) end;        
+    p0 = Optim.minimizer(res0)[1]
+
+    # then a 2D optimisation of zero- and first-order pc
+    result=Optim.optimize(x->goalfun(x,dspect,apc.γ),[p0,0.0],
+            Optim.LBFGS(),
+            Optim.Options(show_trace=false,
+                          f_calls_limit=500,
+                          time_limit=2.0,
+                          g_tol=1.0e-8)
+        );
+    if apc.verbose print(result) end;
+    pc=PhaseCorrect( Optim.minimizer(result)[1], Optim.minimizer(result)[2]/1000,1);
+    scorr = pc(spect);
   return scorr ;
 end
 
