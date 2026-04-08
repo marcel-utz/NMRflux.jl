@@ -29,9 +29,9 @@ Base.showarg(io::IO, A::SpectData, toplevel) = print(io, typeof(A), " with coord
 Base.BroadcastStyle(::Type{<:SpectData}) = Broadcast.ArrayStyle{SpectData}()
 
 function Base.similar(bc::Broadcast.Broadcasted{Broadcast.ArrayStyle{SpectData}}, ::Type{ElType}) where ElType
-    # Scan the inputs for the ArrayAndChar:
+    # Scan the inputs for the SpectData:
     A = find_spdta(bc)
-    # Use the char field of A to create the output
+    # Use the size and coordinates of the SpectData to construct a new one with the appropriate element type:
     SpectData(similar(Array{ElType}, axes(bc)), A.coord)
 end
 
@@ -46,11 +46,11 @@ find_spdta(::Any, rest) = find_spdta(rest)
 ## ----------------------------------------------------------------------------
 
 ## support slicing ------------------------------------------------------------
-getindex(S::SpectData{T,N},I::Vararg{<:Integer,N}) where {T,N} = getindex(S.dat,I...)
+getindex(S::SpectData{T,N},I::Vararg{<:Integer,N}) where {T,N} = getindex(S.dat,CartesianIndex(I...))
 
 function getindex(S::SpectData,I...)
     adat=S.dat[I...]
-    if all(x->x isa Integer,I)
+    if all(x->x isa Integer,I) || all(x->x isa CartesianIndex,I)
         return adat
     else
         newcoords=[]

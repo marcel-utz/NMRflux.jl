@@ -2,7 +2,9 @@ module NMRlab
 
     export SpectData,coords,load
     export NMRProcessor, Chain, FourierTransform, Apodize, ZeroFill, 
-           PhaseCorrect, MedianBaselineCorrect, Derivative, AutoPhaseCorrectChen
+           PhaseCorrect, MedianBaselineCorrect, Derivative, Integral,
+           AutoPhaseCorrectChen,PeakAlign
+   
     export SpinSim
     export GISSMO
 

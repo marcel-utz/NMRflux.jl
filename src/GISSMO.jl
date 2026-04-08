@@ -121,4 +121,82 @@ function search(term::String)
     return JSON.parse(res)
 end
 
+@doc"""
+    function block_diagonal_reorder(SpM::AbstractMatrix{T};threshold=1e-6) where {T<:Number}
+
+Reorders the spin matrix `SpM` to block diagonal form by finding connected
+components of the graph defined by the nonzero entries of `SpM`.  Returns the
+reordered matrix and the block structure as a vector of vectors of indices. The
+`threshold` parameter is used to determine which entries are considered nonzero.
+"""
+function block_diagonal_reorder(SpM::AbstractMatrix{T};threshold=1e-6) where {T<:Number}
+    A_bool = abs.(SpM) .> threshold
+    blocks = connected_components(A_bool)
+    perm = vcat(blocks...)
+    return SpM[perm, perm], blocks
+end
+
+@doc"""
+    function connected_components(A_bool)
+
+Finds the connected components of a graph represented by a boolean adjacency matrix `A_bool`.
+"""
+function connected_components(A_bool::AbstractMatrix{Bool})
+    n = size(A_bool, 1)
+    visited = falses(n)
+    components = Vector{Vector{Int}}()
+    for start in 1:n
+        if !visited[start]
+            # BFS
+            comp = Int[]
+            queue = [start]
+            visited[start] = true
+            while !isempty(queue)
+                node = popfirst!(queue)
+                push!(comp, node)
+                for neighbor in 1:n
+                    if A_bool[node, neighbor] && !visited[neighbor]
+                        visited[neighbor] = true
+                        push!(queue, neighbor)
+                    end
+                end
+            end
+            push!(components, comp)
+        end
+    end
+    return components
+end
+
+
+function fiedler_split(indices, A; tol=1e-10)
+    n = length(indices)
+    if n <= 1
+        return [indices]
+    end
+    
+    A_sub = abs.(A[indices, indices])
+    A_sub = A_sub - Diagonal(A_sub)  # absolute values, zero diagonal
+    
+    D = Diagonal(vec(sum(A_sub, dims=2)))
+    L = D - A_sub
+    
+    vals, vecs = eigen(Symmetric(L))
+    
+    if n < 2 || vals[2] > tol
+        return [indices]
+    end
+    
+    fiedler = vecs[:, 2]
+    group1 = indices[fiedler .< 0]
+    group2 = indices[fiedler .>= 0]
+    
+    if isempty(group1) || isempty(group2)
+        return [indices]
+    end
+    
+    return [fiedler_split(group1, A; tol=tol);
+            fiedler_split(group2, A; tol=tol)]
+end
+
+
 end
