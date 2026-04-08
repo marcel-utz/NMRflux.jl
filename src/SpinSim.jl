@@ -9,12 +9,13 @@ are opened, but are represented as sparse matrices. Simulations with up to about
 module SpinSim
 
 #using NMR.PauliMatrix
+using NMRlab
 using SparseArrays
 using LinearAlgebra
 import Arpack
 
 export Kron,⊗,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
-       Commutator,Trc,RungeKutta,Propagate,Spectrum
+       Commutator,Trc,RungeKutta,Propagate,Spectrum, clorentzian,PeakSpect,expm,FID
 
 export Sx,Sy,Sz,Sp,Sm,Id
 
@@ -25,6 +26,15 @@ const  Sp = Sx+im*Sy;
 const  Sm = Sx-im*Sy;
 const  Id = sparse([1 0;0 1]);
 
+@doc"""
+    Kron(A,B)
+
+    returns the Kronecker product of `A` and `B`. The result is returned as a sparse
+matrix if either `A` or `B` is sparse, and as a dense matrix otherwise. The
+method is overloaded for various combinations of dense and sparse matrices, and
+for diagonal matrices. For more than two arguments, the Kronecker product is
+computed recursively.
+"""
 function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -318,13 +328,19 @@ end
 
 
 @doc raw"""
-        function Spectrum(ρ,H,Ψ;tol=1e-3)
+        function Spectrum(ρ,H,Ψ;tol=1e-3,nev=400)
 
-compute the frequencies and intensities of the spectrum given by the
-the initial density operator ρ, the Hamiltonian H, and the observation operator
-Ψ. The results are returned as a tuple `(freq,int)` of two one-dimensional
-arrays. `tol` is a cutoff; transitions with absolute amplitudes less than
-this value are suppressed.
+compute the frequencies and intensities of the spectrum given by the the initial
+density operator ρ, the Hamiltonian H, and the observation operator Ψ. The
+results are returned as a tuple `(freq,int)` of two one-dimensional arrays.
+`tol` is a cutoff; transitions with absolute amplitudes less than this value are
+suppressed. The algorithm computes the eigenvalues and eigenvectors of the
+Hamiltonian, transforms the density operator and observation operator into the
+eigenbasis, and computes the transition frequencies and amplitudes. For large
+Hamiltonians, only a subset of eigenvalues and eigenvectors are computed, using
+the Arpack package. This may lead to missing transitions, but is much faster.
+The number of eigenvalues and eigenvectors to compute can be set with the `nev`
+keyword argument.
 """
 function Spectrum(ρ,H,Ψ;tol=1e-3,nev=400)
     n,m=size(H)
@@ -370,9 +386,9 @@ A `Data1D` object is returned.
 function PeakSpect(p,i,r;lw=0.0001)
     s=zeros(ComplexF64,length(r))
     for k=1:length(p)
-        s .+= i[k].*NMRlab.clorentzian.(p[k],(1/lw)^2,r)
+        s .+= i[k].*clorentzian.(p[k],(1/lw)^2,r)
     end
-    return SpectData{ComplexF64,1}(s,(r,))
+    return NMRlab.SpectData{ComplexF64,1}(s,(r,))
 end
 
 @doc raw"""
@@ -403,6 +419,30 @@ function expm(A::AbstractSparseMatrix{Tv,Ti}) where {Tv,Ti}
     return E
 end
 
+@doc raw"""
+    function FID(H,δt,l)
 
+simulate the free induction decay (FID) of a spin system with Hamiltonian `H`,
+time step `δt`, and length `l`. The initial density operator is taken to be the
+$\hat F_x$, and the observation operator is taken to be the sum
+of the raising operators for all spins. The FID is returned as a `SpectData` object, with the time points as the coordinates.
+"""
+function FID(H,δt,l)
+    n=convert(Int, log2(size(H,1))) # size of the spin system is 2^n, so we can compute n as the log2 of the matrix size
+    P=SpinSim.expm(im*δt*(H))
+    droptol!(P,1.0e3*eps(Float64))
+    rho0=2.0^(-n)*sum(SpinSim.SpinOp(n,SpinSim.Sx,k) for k=1:n)
+    Fp=sum(SpinSim.SpinOp(n,SpinSim.Sp,k) for k=1:n)
+    fid = ComplexF64[]
+    sizehint!(fid,l)
+    ρ = rho0
+
+    for k=1:l  
+        push!(fid, tr(ρ*Fp))
+        ρ = P*ρ*P';
+        droptol!(ρ,10*eps(Float64))
+    end
+    SpectData(fid, (range(0.0,step=δt,length=l),))
+end
 
 end

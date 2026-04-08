@@ -231,6 +231,24 @@ function (der::Derivative)(spect::SpectData{T,1}) where {T<:Number}
     return SpectData(d, spect.coord)
 end
 
+
+@doc raw"""
+    function Integral(dim::Integer)
+
+returns a processor that computes the integral of a spectrum along the dimension `dim`.
+"""
+struct Integral <: NMRProcessor1D
+    dim::Int64
+end
+
+function (int::Integral)(spect::SpectData{T,1}) where {T<:Number}
+    s=spect.dat
+    inc=step(spect.coord[1])
+    d = cumsum(s)*inc
+    return SpectData(d, spect.coord)
+end 
+
+
 ent(x) = x*log(x)
 
 import Optim
@@ -289,15 +307,14 @@ end
 function (apc::AutoPhaseCorrectChen)(spect::SpectData{T,1}) where {T<:Number}
     dspect = Derivative(1)(spect)
     # do a 1D optimisation of the zero-order pc first 
-    res0  = Optim.optimize(x->goalfun([x[1],0.0],dspect,apc.γ),[0.0],
-                Optim.Options(show_trace=false,g_tol=1.0e-9));
+    res0  = Optim.optimize(x->goalfun([x[1],0.0],dspect,apc.γ),-pi,pi,Optim.Brent());
     
     if apc.verbose print(res0) end;        
     p0 = Optim.minimizer(res0)[1]
 
     # then a 2D optimisation of zero- and first-order pc
     result=Optim.optimize(x->goalfun(x,dspect,apc.γ),[p0,0.0],
-            Optim.LBFGS(),
+            Optim.BFGS(),
             Optim.Options(show_trace=false,
                           f_calls_limit=500,
                           time_limit=2.0,
@@ -309,3 +326,28 @@ function (apc::AutoPhaseCorrectChen)(spect::SpectData{T,1}) where {T<:Number}
   return scorr ;
 end
 
+
+@doc raw"""
+    function PeakAlign(dim::Integer, readpos::Float64, wdw::Integer)
+
+returns a processor that aligns a spectrum along the dimension `dim` to a
+specific position `readpos`.  It works by finding a maximum in the spectrum within a window `wdw`
+that
+is closest to `readpos`, and then shifting the spectrum such that this maximum
+is exactly at `readpos`. This can be useful to align spectra to a reference
+peak, e.g., TMS.
+"""
+struct PeakAlign <: NMRProcessor1D
+    dim::Int64
+    readpos::Float64
+    wdw::Int64
+end
+
+function (pa::PeakAlign)(spect::SpectData{T,1}) where {T<:Number}
+    # find the index of the point closest to readpos
+    idx = findmin(abs.(spect.coord[1] .- pa.readpos))[2]
+    # find a maximum in the spectrum that is closest to readpos
+    maxidx = findmax(abs.(spect.dat[idx-pa.wdw:idx+pa.wdw]))[2] + idx - pa.wdw
+    newdat = circshift(spect.dat, idx-maxidx)
+    return SpectData(newdat, (spect.coord[1],))
+end
