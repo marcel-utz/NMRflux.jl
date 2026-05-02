@@ -182,7 +182,7 @@ wrap(n,l)=[mod(k,l) for k in n]
 
 computes the convolution of the array `X` with the vector `y` along the dimension `dim`.
 The ends of `X` are zero-padded such that the result is guaranteed to have the same size as `X`.
-`NMRlab.conv()` uses a direct algorithm for the convolution, not fft. It is therefore efficient
+`NMRflux.conv()` uses a direct algorithm for the convolution, not fft. It is therefore efficient
 when the length of `y` is much less than the corresponding dimension of `X`. If this is not
 the case and performance is critical, a different algorithm should be used.
 """
