@@ -12,10 +12,9 @@ using HTTP
 using LightXML
 import JSON
 import LinearAlgebra
-using  NMRlab.SpinSim
+using  NMRflux.SpinSim
 
-
-export Hamiltonian, search
+export Hamiltonian, search, SpinMatrix, NMRsignals
 
 
 """
@@ -198,5 +197,36 @@ function fiedler_split(indices, A; tol=1e-10)
             fiedler_split(group2, A; tol=tol)]
 end
 
+@doc"""
+    function NMRsignals(SpM::AbstractMatrix{T};freq=600.0,ctr=4.8) where {T<:Number}
+
+Computes the NMR signals for a given spin matrix `SpM`. The function first
+reorders the spin matrix to block diagonal form, then computes the Hamiltonian
+for each block, and finally simulates the NMR spectrum for each block. The
+resulting frequencies and intensities are returned as two separate arrays.
+Keyword parameters `freq` and `ctr` are used to specify the spectrometer base
+frequency (in MHz) and the spectral zero point (carrier position) in ppm,
+respectively.
+
+Example usage:
+```julia
+SpM = GISSMO.SpinMatrix("GISSMD000023")
+freqs, ints = GISSMO.NMRsignals(SpM; freq=600.0, ctr=4.78)
+```
+"""
+function NMRsignals(SpM::AbstractMatrix{T};freq=600.0,ctr=4.8) where {T<:Number}
+    blockSpM, blocks = GISSMO.block_diagonal_reorder(SpM)
+    freqs = []
+    ints = [] 
+    for b in blocks
+        n,H=GISSMO.Hamiltonian(SpM[b,b],freq=600.0, ctr=4.78)
+        rho0=1/(2^n) * sum(SpinSim.SpinOp(n,SpinSim.Sx,k) for k=1:n)
+        Fp=sum(SpinSim.SpinOp(n,SpinSim.Sp,k) for k=1:n)
+        bfreqs,bints = SpinSim.Spectrum(rho0,H, Fp, nev=500,tol=1e-8)
+        append!(freqs, bfreqs)
+        append!(ints, bints)
+    end
+    return freqs, ints
+end
 
 end

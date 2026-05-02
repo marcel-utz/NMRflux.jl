@@ -7,7 +7,7 @@ import Base.Filesystem
 run(`echo deploying...`)
 tmpPath = Filesystem.tempname()
 print("File Path: $(tmpPath) \n")
-run(`git clone ssh://git@github.com/marcel-utz/NMRlab.jl --branch=gh-pages $tmpPath`)
+run(`git clone ssh://git@github.com/marcel-utz/NMRflux.jl --branch=gh-pages $tmpPath`)
 run(Cmd(`git status`,dir=tmpPath))
 run(Cmd(`git rm -r '*'`,dir=tmpPath))
 run(`cp -a ./build $(tmpPath)/docs`)

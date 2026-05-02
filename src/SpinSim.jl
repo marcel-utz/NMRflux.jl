@@ -9,7 +9,7 @@ are opened, but are represented as sparse matrices. Simulations with up to about
 module SpinSim
 
 #using NMR.PauliMatrix
-using NMRlab
+using NMRflux
 using SparseArrays
 using LinearAlgebra
 import Arpack
@@ -388,7 +388,7 @@ function PeakSpect(p,i,r;lw=0.0001)
     for k=1:length(p)
         s .+= i[k].*clorentzian.(p[k],(1/lw)^2,r)
     end
-    return NMRlab.SpectData{ComplexF64,1}(s,(r,))
+    return NMRflux.SpectData{ComplexF64,1}(s,(r,))
 end
 
 @doc raw"""

@@ -2,7 +2,7 @@
 
 ## API
 ```@autodocs
-Modules = [NMRlab, NMRlab.FileIO]
+Modules = [NMRflux, NMRflux.FileIO]
 Order   = [:module,:type,:function,:method]
 ```
 ## Index
