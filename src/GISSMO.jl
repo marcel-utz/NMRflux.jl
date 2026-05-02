@@ -116,7 +116,8 @@ searches the online GISSMO database for `term` and returns a `JSON` object
 with the search result.
 """
 function search(term::String)
-    res=String(HTTP.request("GET","https://gissmo.bmrb.io/search?term=$(term)").body)
+    qdict = Dict("term" => term)
+    res=String(HTTP.get("https://gissmo.bmrb.io/search", query=qdict).body)
     return JSON.parse(res)
 end
 
