@@ -1,14 +1,14 @@
-# Roadmap to NMRlab.jl 1.0
+# Roadmap to NMRflux.jl 1.0
 
-`NMRlab.jl` intends to become the main entry point for general, vendor neutral NMR data representation, processing, simulation, and machine learning ready workflows. In its current state, `NMRlab.jl` brings together several strands of standard NMR infrastructure, ranging from data containers and spectral processing to spin dynamics simulation. These components form a domain agnostic toolbox that can be applied to a wide range of NMR problems.
+`NMRflux.jl` intends to become the main entry point for general, vendor neutral NMR data representation, processing, simulation, and machine learning ready workflows. In its current state, `NMRflux.jl` brings together several strands of standard NMR infrastructure, ranging from data containers and spectral processing to spin dynamics simulation. These components form a domain agnostic toolbox that can be applied to a wide range of NMR problems.
 
-In addition to this core functionality, the repository contains project specific example modules demonstrating how the toolbox can be applied to concrete research problems (e.g. metabolomics and microfluidic NMR). These examples build on the core infrastructure but are not required for general use of `NMRlab.jl`, and users interested only in generic NMR processing and simulation can safely ignore them.
+In addition to this core functionality, the repository contains project specific example modules demonstrating how the toolbox can be applied to concrete research problems (e.g. metabolomics and microfluidic NMR). These examples build on the core infrastructure but are not required for general use of `NMRflux.jl`, and users interested only in generic NMR processing and simulation can safely ignore them.
 
-To make `NMRlab.jl` suitable for long term, professional use (both inside and outside the group), we aim for the following goals.
+To make `NMRflux.jl` suitable for long term, professional use (both inside and outside the group), we aim for the following goals.
 
 ## Completed Features (Core Toolbox)
 
-These features constitute the general `NMRlab.jl` infrastructure and are designed to be applicable to a broad range of NMR applications.
+These features constitute the general `NMRflux.jl` infrastructure and are designed to be applicable to a broad range of NMR applications.
 - **User-Oriented Documentation**
     - A user friendly "Getting Started" page.
     - A complete manual with clear, guided examples.
@@ -46,12 +46,9 @@ These features constitute the general `NMRlab.jl` infrastructure and are designe
 
 ## Applied Examples and Illustrative Workflows
 
-This section documents example workflows that build on `NMRlab.jl`, but are not part of the core toolbox. These examples are intended to demonstrate how the infrastructure can be applied to specific research problems and may evolve independently of the core API. In addition to the core, domain agnostic toolbox, the documentation includes illustrative workflows that demonstrate how `NMRlab.jl` can be applied to concrete research problems. These examples are provided for guidance and do not define or constrain the scope of the core API.
+This section documents example workflows that build on `NMRflux.jl`, but are not part of the core toolbox. These examples are intended to demonstrate how the infrastructure can be applied to specific research problems and may evolve independently of the core API. In addition to the core, domain agnostic toolbox, the documentation includes illustrative workflows that demonstrate how `NMRflux.jl` can be applied to concrete research problems. These examples are provided for guidance and do not define or constrain the scope of the core API.
 
 **Synthetic FID generation (illustrative example)**: An example workflow demonstrating how to generate physically plausible synthetic FIDs using the spin-dynamics simulation framework. This example is documented in `SpinDynamics.md`, Section 1.2 - [Generating a batch of synthetic FIDs](SpinDynamics.md#1-2-generating-a-batch-of-synthetic-fids) and serves as an illustration of how the core simulation tools can be used for benchmarking and data generation.
-
-**Spectral denoising (SpecCleaner)**: A project specific, end-to-end machine learning example demonstrating training and inference of spectral denoising models on NMR data.
-This workflow is documented separately in [SpecCleaner](SpecCleaner.md) `SpecCleaner.md` and builds on the core `NMRlab.jl` infrastructure without extending its public API.
 
 These examples illustrate one way in which the toolbox can be used and may evolve independently of the core library.
 

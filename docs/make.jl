@@ -14,7 +14,10 @@
 #   reference, and produces a complete HTML documentation site.
 ###########################################################################
 
-push!(LOAD_PATH, "../src/")
+using Pkg
+Pkg.activate(joinpath(@__DIR__, ".."))   # activate the package's main Project.toml,
+                                         # which has all of NMRflux's deps + Documenter.
+                                         # Lets `julia docs/make.jl` work from any cwd.
 
 using NMRflux
 using Documenter

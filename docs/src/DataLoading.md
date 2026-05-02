@@ -1,22 +1,22 @@
 # 1. Loading NMR Data
-`NMRlab.jl` provides:
-Low level, vendor specific readers in the submodule `NMRlab.FileIO`. These work directly with Bruker and JEOL file formats and return raw time domain arrays and parameter dictionaries. High level processing tools that operate on `SpectData` objects created from these raw arrays. For convenience, `NMRlab.jl` comes with example datasets that can be used in the documentation and in interactive sessions.
+`NMRflux.jl` provides:
+Low level, vendor specific readers in the submodule `NMRflux.FileIO`. These work directly with Bruker and JEOL file formats and return raw time domain arrays and parameter dictionaries. High level processing tools that operate on `SpectData` objects created from these raw arrays. For convenience, `NMRflux.jl` comes with example datasets that can be used in the documentation and in interactive sessions.
 
 ## 1.1 Example datasets
-The example data are stored in the dictionary `NMRlab.Examples.Data`.
+The example data are stored in the dictionary `NMRflux.Examples.Data`.
 
 ```@example brukerEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 
-data_bruker = NMRlab.Examples.Data["HCC cell culture media spectra"]
+data_bruker = NMRflux.Examples.Data["HCC cell culture media spectra"]
 ```
 
 ```@example joelEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 
-data_joel = NMRlab.Examples.Data["Spheroid culture medium"]
+data_joel = NMRflux.Examples.Data["Spheroid culture medium"]
 ```
 
 ## 1.2 Bruker Data High-level (recommended)
@@ -24,8 +24,8 @@ For most use cases, Bruker data can be loaded via the high-level `load` function
 `SpectData` object:
 
 ```@example brukerEg
-data_bruker = NMRlab.Examples.Data["HCC cell culture media spectra"]
-params_bruker, data_td_bruker = NMRlab.load(joinpath(data_bruker["path"], "10"), :Bruker)
+data_bruker = NMRflux.Examples.Data["HCC cell culture media spectra"]
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker["path"], "10"), :Bruker)
 
 (params_bruker["SW_h"], size(data_td_bruker))
 ```
@@ -34,8 +34,8 @@ Here:
 - `data_td_bruker` is a `SpectData` object containing the time domain FID with an
   appropriate time axis.
 
-Internally, `NMRlab.load(path, :Bruker)`:
-- Reads acqus and fid using `NMRlab.FileIO`
+Internally, `NMRflux.load(path, :Bruker)`:
+- Reads acqus and fid using `NMRflux.FileIO`
 - Applies the Bruker group-delay correction using the parameter `GRPDLY`
 - Constructs the time axis from the sweep width `SW_h`.
 
@@ -52,7 +52,7 @@ savefig("bruker_fid_hl_plot.svg"); nothing # Save figure for Documenter
 ![](bruker_fid_hl_plot.svg)
 
 ## 1.3 Bruker Data (Low-level FileIO)
-Power users can work with the low-level Bruker readers in `NMRlab.FileIO`. These functions operate directly on the raw Bruker files (fid, acqus, etc.)
+Power users can work with the low-level Bruker readers in `NMRflux.FileIO`. These functions operate directly on the raw Bruker files (fid, acqus, etc.)
 and return:
 
 - A complex FID as a Julia vector
@@ -61,20 +61,20 @@ and return:
 Using the same example dataset as above, we can read the FID as follows:
 
 ```@example brukerEg
-using NMRlab.FileIO
+using NMRflux.FileIO
 
-fid_bruker = NMRlab.FileIO.readBrukerFID(joinpath(data_bruker["path"], "10", "fid"))
+fid_bruker = NMRflux.FileIO.readBrukerFID(joinpath(data_bruker["path"], "10", "fid"))
 ```
 
 The `fid_bruker` is a `Vector{ComplexF64}` containing the complex time domain data points stored in the Bruker fid file. For older TopSpin 2.0 data, the FID is stored as 32-bit integers; in that case you can specify the format:
 ```@example brukerEg
-#fid_bruker_old = NMRlab.FileIO.readBrukerFID("fid"; format = Int32) # Example call for TopSpin 2.0 data
+#fid_bruker_old = NMRflux.FileIO.readBrukerFID("fid"; format = Int32) # Example call for TopSpin 2.0 data
 nothing
 ```
 
 The acquisition parameters are stored in Bruker JCAMP-DX files such as acqus. We can read them using:
 ```@example brukerEg
-params_bruker = NMRlab.FileIO.readBrukerParameterFile(joinpath(data_bruker["path"], "10", "acqus"))
+params_bruker = NMRflux.FileIO.readBrukerParameterFile(joinpath(data_bruker["path"], "10", "acqus"))
 ```
 
 The `params_bruker` is a `Dict{String,Any}` in which:
@@ -108,15 +108,15 @@ data_td_bruker = SpectData(fid_bruker, (time_axis,))
 ```
 
 ## 1.4 JEOL Data High-level loading (recommended)
-JEOL `.jdf` files contain acquisition parameters and binary data in a single file. JEOL datasets can be loaded using the unified high level loader NMRlab.load, which returns both the acquisition parameters and a time domain `SpectData` object. Most users can load JEOL data using:
+JEOL `.jdf` files contain acquisition parameters and binary data in a single file. JEOL datasets can be loaded using the unified high level loader NMRflux.load, which returns both the acquisition parameters and a time domain `SpectData` object. Most users can load JEOL data using:
 
 ```@example joelEg
 using Plots
 
-data_jeol = NMRlab.Examples.Data["Spheroid culture medium"]
+data_jeol = NMRflux.Examples.Data["Spheroid culture medium"]
 jdf_file  = joinpath(data_jeol["path"], "yp-5-fu-2.5-100.jdf")
 
-params_jeol, data_td_jeol = NMRlab.load(jdf_file, :JEOL)
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
 
 t_jeol = data_td_jeol.coord[1]    # time axis (s)
 y_jeol = real.(data_td_jeol.dat)  # real part
@@ -141,15 +141,15 @@ The high level loader performs all low level steps automatically:
 - Returns a ready-to-use `SpectData` for downstream processing
 
 ```@example joelEg
-params_jeol, data_td_jeol = NMRlab.load(jdf_file, :JEOL)
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
 (size(data_td_jeol), params_jeol["X_SWEEP"][3])
 ```
 
 ## 1.5 JEOL data (low-level FileIO)
-For advanced use, the low-level JEOL reader in `NMRlab.FileIO` provides direct access to all parts of the .jdf file:
+For advanced use, the low-level JEOL reader in `NMRflux.FileIO` provides direct access to all parts of the .jdf file:
 
 ```@example joelEg
-header_jeol, params_jeol, data_jeol = NMRlab.FileIO.readJEOL(open(jdf_file))
+header_jeol, params_jeol, data_jeol = NMRflux.FileIO.readJEOL(open(jdf_file))
 ```
 
 This function returns:

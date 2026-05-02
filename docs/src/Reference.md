@@ -1,35 +1,35 @@
 # Reference
 
 ```@meta
-CurrentModule = NMRlab
+CurrentModule = NMRflux
 ```
 
 ## Top-Level API
 ```@autodocs
-Modules = [NMRlab, NMRlab.FileIO]
+Modules = [NMRflux, NMRflux.FileIO]
 Order   = [:module, :type, :function, :method]
 ```
 
 ## GISSMO API
 ```@docs
-NMRlab.GISSMO
-NMRlab.GISSMO.Hamiltonian
-NMRlab.GISSMO.SpinMatrix
-NMRlab.GISSMO.search
+NMRflux.GISSMO
+NMRflux.GISSMO.Hamiltonian
+NMRflux.GISSMO.SpinMatrix
+NMRflux.GISSMO.search
 ```
 
 ## SpinSim API
 ```@docs
-NMRlab.SpinSim.Spectrum
-NMRlab.SpinSim.PeakSpect
-NMRlab.SpinSim.clorentzian
-NMRlab.SpinSim.expm
+NMRflux.SpinSim.Spectrum
+NMRflux.SpinSim.PeakSpect
+NMRflux.SpinSim.clorentzian
+NMRflux.SpinSim.expm
 ```
 
 ## Examples API
 ```@docs
-NMRlab.Examples
-NMRlab.Examples.Data
+NMRflux.Examples
+NMRflux.Examples.Data
 ```
 
 ## Index

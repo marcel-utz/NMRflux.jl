@@ -1,6 +1,6 @@
 *A Julia framework for processing, simulating, and denoising NMR data*
 
-# NMRlab.jl - Overview
+# NMRflux.jl - Overview
 
 ## Package Features
 
@@ -16,7 +16,7 @@
 ```@contents
 ```
 
-`NMRlab.jl` is a library for the processing, simulation, and interpretation of NMR
+`NMRflux.jl` is a library for the processing, simulation, and interpretation of NMR
 data. It is the successor of an earlier toolkit (`NMR.jl`) developed in
 the Utz group and is intended to provide a more coherent, extensible, and
 well-documented framework.
@@ -26,11 +26,11 @@ robust data handling, flexible processing pipelines, spin simulations, and
 Deep learning based denoising. It is designed as a general NMR framework that
 can serve as a foundation for higher-level workflows, including applications
 where NMR data are used in quantitative studies. Many of these tools have 
-already been used in ongoing projects, and the goal of NMRlab.jl is to collect 
+already been used in ongoing projects, and the goal of NMRflux.jl is to collect 
 them in a single, consistent interface that can be used both inside and outside the group.
 
 !!! note "Scope and applications"
-    NMRlab.jl is designed to be applicable to a wide range of NMR experiments.
+    NMRflux.jl is designed to be applicable to a wide range of NMR experiments.
     It aims to support standard NMR data processing workflows, spin dynamics
     simulations, synthetic data generation, and automated spectra cleaning. The
     package is intended as a flexible foundation that can be integrated into
@@ -56,11 +56,11 @@ docstrings - can be found in the **API Reference**.
 
 ## Feedback
 
-`NMRlab.jl` is under active development, and feedback is very welcome.  
+`NMRflux.jl` is under active development, and feedback is very welcome.  
 Bug reports, feature requests, and suggestions can be submitted via the
 project's GitHub repository or contact `marcel.utz@kit.edu` by email.
 
-## Citing NMRlab.jl
+## Citing NMRflux.jl
 
-If you use `NMRlab.jl` in published work, we would appreciate an acknowledge this by citing our work. 
-A formal reference for `NMRlab.jl` is planned and will be added here once available.
+If you use `NMRflux.jl` in published work, we would appreciate an acknowledge this by citing our work. 
+A formal reference for `NMRflux.jl` is planned and will be added here once available.

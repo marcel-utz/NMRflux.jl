@@ -1,7 +1,7 @@
 # 1. Spin Dynamics Simulation and Synthetic FIDs (GenerateFIDs / SpinSim)
-`NMRlab.jl` includes a lightweight spin dynamics engine (`SpinSim`) for simulating NMR spin evolution. `SpinSim` is designed for generic spin dynamics simulations in both the time and frequency domain, performing simulations in Hilbert space using the density operator formalism. Building on this physics core, `NMRlab.jl` provides a higher level helper module (`GenerateFIDs`) for generating realistic synthetic 1H NMR spectra and time domain FIDs that resemble experimental measurements of complex mixtures motivated by our group's main interest in analysing complex mixtures in biological contexts (metabolomics and metabolic analysis). Because the full pipeline is implemented in Julia and can generate paired clean/dirty data on demand, it provides an effectively unlimited source of training data for machine learning models, and it is also useful for stress testing and validating NMR processing pipelines.
+`NMRflux.jl` includes a lightweight spin dynamics engine (`SpinSim`) for simulating NMR spin evolution. `SpinSim` is designed for generic spin dynamics simulations in both the time and frequency domain, performing simulations in Hilbert space using the density operator formalism. Building on this physics core, `NMRflux.jl` provides a higher level helper module (`GenerateFIDs`) for generating realistic synthetic 1H NMR spectra and time domain FIDs that resemble experimental measurements of complex mixtures motivated by our group's main interest in analysing complex mixtures in biological contexts (metabolomics and metabolic analysis). Because the full pipeline is implemented in Julia and can generate paired clean/dirty data on demand, it provides an effectively unlimited source of training data for machine learning models, and it is also useful for stress testing and validating NMR processing pipelines.
 
-The main entry point is `generateBatch`, which offers a unified, user friendly interface for producing synthetic datasets. It reads all simulation parameters from a TOML configuration file, automatically generates random spin Hamiltonians, computes the corresponding frequency domain spectra, converts them into realistic time domain FIDs, and applies artefacts (e.g. noise, phase errors, solvent peaks, and baseline distortions) to produce *dirty* FIDs. The output is returned as a `SpectData` object, fully compatible with downstream processing tools in `NMRlab.jl`, and can be written to disk in `.jld2` format.
+The main entry point is `generateBatch`, which offers a unified, user friendly interface for producing synthetic datasets. It reads all simulation parameters from a TOML configuration file, automatically generates random spin Hamiltonians, computes the corresponding frequency domain spectra, converts them into realistic time domain FIDs, and applies artefacts (e.g. noise, phase errors, solvent peaks, and baseline distortions) to produce *dirty* FIDs. The output is returned as a `SpectData` object, fully compatible with downstream processing tools in `NMRflux.jl`, and can be written to disk in `.jld2` format.
 
 Each batch follows a clean/dirty pairing convention: **odd-indexed** rows contain **clean** FIDs and the subsequent **even-indexed** rows contain the corresponding artefact-corrupted **dirty** FIDs (row 1 = clean, row 2 = dirty; row 3 = clean, row 4 = dirty; etc.). All simulation behaviour is controlled entirely through the TOML configuration file, ensuring reproducibility and easy tuning of SNR and artefact settings.
 
@@ -50,8 +50,8 @@ Conceptually:
 The main entry point is `GenerateFIDs.generateBatch`, which reads the `TOML` file, builds the Hamiltonians, simulates the spectra using `SpinSim.Spectrum`, converts them to time domain FIDs, applies artefacts, and returns a `SpectData` object.
 
 ```@julia
-using NMRlab
-using NMRlab.GenerateFIDs
+using NMRflux
+using NMRflux.GenerateFIDs
 
 toml_file = joinpath(@DIR, "..", "examples", "synthetic", "Batch16k.toml") # Path to your TOML configuration file (adjust to your repository layout)
 batch = GenerateFIDs.generateBatch(toml_file; saveFile = false)

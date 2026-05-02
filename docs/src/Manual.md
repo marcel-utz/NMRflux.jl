@@ -1,5 +1,5 @@
 # User Manual
-`NMRlab.jl` provides a unified framework for NMR data processing, simulation, and machine learning based spectral cleaning. It combines vendor neutral file loading, classical processing tools, spin dynamics simulation modules, and Flux based ML models for automated denoising. This manual gives a practical introduction to the core functionality of the package.
+`NMRflux.jl` provides a unified framework for NMR data processing, simulation, and machine learning based spectral cleaning. It combines vendor neutral file loading, classical processing tools, spin dynamics simulation modules, and Flux based ML models for automated denoising. This manual gives a practical introduction to the core functionality of the package.
 
 # 1. Installation
 To install the package from GitHub:
@@ -12,28 +12,28 @@ Pkg.add(url = "https://github.com/marcel-utz/NMRflux.jl.git")
 Once installation is complete:
 
 ```@julia
-using NMRlab
+using NMRflux
 ```
 
 # 2. Loading NMR Data
-`NMRlab.jl` provides:
-Low level, vendor specific readers in the submodule `NMRlab.FileIO`. These work directly with Bruker and JEOL file formats and return raw time domain arrays and parameter dictionaries. High level processing tools that operate on `SpectData` objects created from these raw arrays. For convenience, `NMRlab.jl` comes with example datasets that can be used in the documentation and in interactive sessions.
+`NMRflux.jl` provides:
+Low level, vendor specific readers in the submodule `NMRflux.FileIO`. These work directly with Bruker and JEOL file formats and return raw time domain arrays and parameter dictionaries. High level processing tools that operate on `SpectData` objects created from these raw arrays. For convenience, `NMRflux.jl` comes with example datasets that can be used in the documentation and in interactive sessions.
 
 ## 2.1 Example datasets
-The example data are stored in the dictionary `NMRlab.Examples.Data`.
+The example data are stored in the dictionary `NMRflux.Examples.Data`.
 
 ```@example brukerEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 
-data_bruker = NMRlab.Examples.Data["HCC cell culture media spectra"]
+data_bruker = NMRflux.Examples.Data["HCC cell culture media spectra"]
 ```
 
 ```@example joelEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 
-data_joel = NMRlab.Examples.Data["Spheroid culture medium"]
+data_joel = NMRflux.Examples.Data["Spheroid culture medium"]
 ```
 
 ## 2.2 Bruker Data High-level (recommended)
@@ -41,8 +41,8 @@ For most use cases, Bruker data can be loaded via the high-level `load` function
 `SpectData` object:
 
 ```@example brukerEg
-data_bruker = NMRlab.Examples.Data["HCC cell culture media spectra"]
-params_bruker, data_td_bruker = NMRlab.load(joinpath(data_bruker["path"], "10"), :Bruker)
+data_bruker = NMRflux.Examples.Data["HCC cell culture media spectra"]
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker["path"], "10"), :Bruker)
 
 (params_bruker["SW_h"], size(data_td_bruker))
 ```
@@ -51,8 +51,8 @@ Here:
 - `data_td_bruker` is a `SpectData` object containing the time domain FID with an
   appropriate time axis.
 
-Internally, `NMRlab.load(path, :Bruker)`:
-- Reads acqus and fid using `NMRlab.FileIO`
+Internally, `NMRflux.load(path, :Bruker)`:
+- Reads acqus and fid using `NMRflux.FileIO`
 - Applies the Bruker group-delay correction using the parameter `GRPDLY`
 - Constructs the time axis from the sweep width `SW_h`.
 
@@ -69,7 +69,7 @@ savefig("bruker_fid_hl_plot.svg"); nothing # Save figure for Documenter
 ![](bruker_fid_hl_plot.svg)
 
 ## 2.3 Bruker Data (Low-level FileIO)
-Power users can work with the low-level Bruker readers in `NMRlab.FileIO`. These functions operate directly on the raw Bruker files (fid, acqus, etc.)
+Power users can work with the low-level Bruker readers in `NMRflux.FileIO`. These functions operate directly on the raw Bruker files (fid, acqus, etc.)
 and return:
 
 - A complex FID as a Julia vector
@@ -78,20 +78,20 @@ and return:
 Using the same example dataset as above, we can read the FID as follows:
 
 ```@example brukerEg
-using NMRlab.FileIO
+using NMRflux.FileIO
 
-fid_bruker = NMRlab.FileIO.readBrukerFID(joinpath(data_bruker["path"], "10", "fid"))
+fid_bruker = NMRflux.FileIO.readBrukerFID(joinpath(data_bruker["path"], "10", "fid"))
 ```
 
 The `fid_bruker` is a `Vector{ComplexF64}` containing the complex time domain data points stored in the Bruker fid file. For older TopSpin 2.0 data, the FID is stored as 32-bit integers; in that case you can specify the format:
 ```@example brukerEg
-#fid_bruker_old = NMRlab.FileIO.readBrukerFID("fid"; format = Int32) # Example call for TopSpin 2.0 data
+#fid_bruker_old = NMRflux.FileIO.readBrukerFID("fid"; format = Int32) # Example call for TopSpin 2.0 data
 nothing
 ```
 
 The acquisition parameters are stored in Bruker JCAMP-DX files such as acqus. We can read them using:
 ```@example brukerEg
-params_bruker = NMRlab.FileIO.readBrukerParameterFile(joinpath(data_bruker["path"], "10", "acqus"))
+params_bruker = NMRflux.FileIO.readBrukerParameterFile(joinpath(data_bruker["path"], "10", "acqus"))
 ```
 
 The `params_bruker` is a `Dict{String,Any}` in which:
@@ -125,15 +125,15 @@ data_td_bruker = SpectData(fid_bruker, (time_axis,))
 ```
 
 ## 2.4 JEOL Data High-level loading (recommended)
-JEOL `.jdf` files contain acquisition parameters and binary data in a single file. JEOL datasets can be loaded using the unified high level loader NMRlab.load, which returns both the acquisition parameters and a time domain `SpectData` object. Most users can load JEOL data using:
+JEOL `.jdf` files contain acquisition parameters and binary data in a single file. JEOL datasets can be loaded using the unified high level loader NMRflux.load, which returns both the acquisition parameters and a time domain `SpectData` object. Most users can load JEOL data using:
 
 ```@example joelEg
 using Plots
 
-data_jeol = NMRlab.Examples.Data["Spheroid culture medium"]
+data_jeol = NMRflux.Examples.Data["Spheroid culture medium"]
 jdf_file  = joinpath(data_jeol["path"], "yp-5-fu-2.5-100.jdf")
 
-params_jeol, data_td_jeol = NMRlab.load(jdf_file, :JEOL)
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
 
 t_jeol = data_td_jeol.coord[1]    # time axis (s)
 y_jeol = real.(data_td_jeol.dat)  # real part
@@ -158,15 +158,15 @@ The high level loader performs all low level steps automatically:
 - Returns a ready-to-use `SpectData` for downstream processing
 
 ```@example joelEg
-params_jeol, data_td_jeol = NMRlab.load(jdf_file, :JEOL)
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
 (size(data_td_jeol), params_jeol["X_SWEEP"][3])
 ```
 
 ## 2.5 JEOL data (low-level FileIO)
-For advanced use, the low-level JEOL reader in `NMRlab.FileIO` provides direct access to all parts of the .jdf file:
+For advanced use, the low-level JEOL reader in `NMRflux.FileIO` provides direct access to all parts of the .jdf file:
 
 ```@example joelEg
-header_jeol, params_jeol, data_jeol = NMRlab.FileIO.readJEOL(open(jdf_file))
+header_jeol, params_jeol, data_jeol = NMRflux.FileIO.readJEOL(open(jdf_file))
 ```
 
 This function returns:
@@ -211,7 +211,7 @@ data_td_jeol = SpectData(cdata, (time_axis,))
 The acquisition parameters (`params_jeol`) and header information (`header_jeol`) may be stored alongside the `SpectData` object to keep all metadata available for processing.
 
 # 3. Working with SpectData
-`SpectData` is the central data structure in NMRlab.jl. It stores an N-dimensional numerical data array, and one coordinate vector for each dimension, and is defined as a subtype of `AbstractArray{T,N}`. This means that `SpectData` behaves like a regular Julia array in most contexts: it supports indexing, slicing, broadcasting, and can be passed to most numerical functions that expect an array.
+`SpectData` is the central data structure in NMRflux.jl. It stores an N-dimensional numerical data array, and one coordinate vector for each dimension, and is defined as a subtype of `AbstractArray{T,N}`. This means that `SpectData` behaves like a regular Julia array in most contexts: it supports indexing, slicing, broadcasting, and can be passed to most numerical functions that expect an array.
 
 For reference, the type is defined as:
 ```julia
@@ -259,7 +259,7 @@ t_axis = data_td_jeol.coord[1]  # time axis
 In higher dimensions (e.g. 2D or 3D spectra), dat becomes an N-dimensional array, and coord[k] stores the coordinate vector (time, frequency, ppm, etc.) for the k-th dimension. Thus SpectData always keeps the numerical values and their physical axes together in a single coherent object. Conversion to frequency domain spectra (FFT, shifting, phasing, etc.) is handled by the processing tools described in the following sections.
 
 # 4. Classical Processing Pipeline
-`NMRlab.jl` provides a flexible framework for defining and combining NMR processing operations through the abstract type `NMRProcessor`. Processing tools are implemented as callable objects ("functors") that act on `SpectData` (or, via a fallback, on plain arrays) and can be chained together into processing pipelines. NMRlab.jl provides a number of processing functions built on top of `NMRProcessor`:
+`NMRflux.jl` provides a flexible framework for defining and combining NMR processing operations through the abstract type `NMRProcessor`. Processing tools are implemented as callable objects ("functors") that act on `SpectData` (or, via a fallback, on plain arrays) and can be chained together into processing pipelines. NMRflux.jl provides a number of processing functions built on top of `NMRProcessor`:
 
 ## 4.1 The NMRProcessor abstraction
 At the core of the processing framework is the abstract type:
@@ -302,7 +302,7 @@ processed = p(data_td_jeol)
 ## 4.3 Zero filling (`ZeroFill`)
 Zero filling extends the length of a time domain FID by appending additional points with value zero. This increases digital resolution in the subsequent Fourier transform but does not add new experimental information. It is usually applied as the first processing step. 
 
-In `NMRlab.jl`, zero filling is implemented by the processor `ZeroFill`, which acts on `SpectData`. It pads the underlying data array with zeros and, if the coordinate axis is evenly spaced (as in a typical time axis), extends that coordinate with the same step size to the new length. Using the time domain Bruker FID defined earlier (`data_td_bruker`):
+In `NMRflux.jl`, zero filling is implemented by the processor `ZeroFill`, which acts on `SpectData`. It pads the underlying data array with zeros and, if the coordinate axis is evenly spaced (as in a typical time axis), extends that coordinate with the same step size to the new length. Using the time domain Bruker FID defined earlier (`data_td_bruker`):
 ```@example brukerEg
 N_orig = length(data_td_bruker.dat) # Original number of points
 N_target = 2^16                     # Target size: 64k points (2^16)
@@ -330,7 +330,7 @@ savefig("bruker_fid_zf_plot.svg"); nothing
 ## 4.4 Apodization (`Apodize`)
 Apodization applies a decay function (window) to the time-domain FID. In practice, this damps the tail of the FID, reducing truncation artefacts and high frequency noise in the frequency domain at the cost of some line broadening. It is typically applied *after* zero filling and before the Fourier transform. 
 
-In `NMRlab.jl`, apodization is implemented by the processor Apodize, which
+In `NMRflux.jl`, apodization is implemented by the processor Apodize, which
 acts on `SpectData` by multiplies the data along selected dimensions by an exponential factor of the form:
 ```@julia
 f(t) = exp.(-R * t)
@@ -361,7 +361,7 @@ savefig("bruker_fid_zf_ap_plot.svg"); nothing
 ## 4.5 Fourier transform (FourierTransform)
 The Fourier transform converts a time domain FID into a frequency domain spectrum. After zero filling and apodization, applying the FFT produces a complex spectrum whose real and imaginary parts can be used for further processing (phase correction, baseline correction, peak picking, etc.).
 
-In `NMRlab.jl`, the processor FourierTransform wraps FFTW's FFT planning and
+In `NMRflux.jl`, the processor FourierTransform wraps FFTW's FFT planning and
 updates the coordinate axes accordingly. For each transformed dimension:
 - The FFT is applied to the data
 - The coordinate axis is replaced by a frequency axis based on the sampling interval (Nyquist theorem)
@@ -455,7 +455,7 @@ After phase correction, spectra often exhibit slowly varying offsets or slopes i
 
 The processor is constructed as:
 ```@julia
-NMRlab.MedianBaselineCorrect(dim; wdw = 256)
+NMRflux.MedianBaselineCorrect(dim; wdw = 256)
 ```
 where:
 - `dim`: dimension along which baseline correction is performed (typically 1 for 1D spectra)
@@ -463,7 +463,7 @@ where:
 
 Example: Continuing from the previous section, we start from the phased frequency domain spectrum `data_fd_bruker_zf_ap_pc`:
 ```@example brukerEg
-mbc = NMRlab.MedianBaselineCorrect(1; wdw = 256)   # baseline correction along frequency dimension
+mbc = NMRflux.MedianBaselineCorrect(1; wdw = 256)   # baseline correction along frequency dimension
 data_fd_bruker_zf_ap_pc_bc = mbc(data_fd_bruker_zf_ap_pc)
 
 size(data_fd_bruker_zf_ap_pc_bc.dat), data_fd_bruker_zf_ap_pc_bc.coord[1][1:5]
@@ -498,11 +498,11 @@ For 1D data, a typical sequence is:
 4. Phase correction
 4. Baseline correction
 
-The `NMRlab.jl` allows these processors to be combined using `Chain`, which applies them in sequence.
+The `NMRflux.jl` allows these processors to be combined using `Chain`, which applies them in sequence.
 
 ```@example brukerEg
 # (1) Loading Bruker data
-params_bruker, data_td_bruker = NMRlab.load(joinpath(data_bruker["path"], "10"), :Bruker)
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker["path"], "10"), :Bruker)
 
 # (1) Zero filling
 N_orig   = length(data_td_bruker.dat)            # Original number of points
@@ -524,7 +524,7 @@ freq_dim = 1                                     # frequency axis is dimension 1
 pc = PhaseCorrect(ph0, ph1, freq_dim)
 
 # (5) Baseline correction on the frequency dimension
-mbc = NMRlab.MedianBaselineCorrect(1; wdw = 256) # window half width = 256 points
+mbc = NMRflux.MedianBaselineCorrect(1; wdw = 256) # window half width = 256 points
 
 # Build the processing chain: ZeroFill -> Apodize -> FT -> Phase -> Baseline
 p = Chain(zf, ap, ft, pc, mbc)
@@ -548,9 +548,9 @@ savefig("bruker_full_pipeline_plot.svg"); nothing
 ![](bruker_full_pipeline_plot.svg)
 
 # 5. Spin Dynamics Simulation and Synthetic FIDs (GenerateFIDs / SpinSim)
-`NMRlab.jl` includes a lightweight spin dynamics engine (`SpinSim`) for simulating NMR spin evolution. `SpinSim` is designed for generic spin dynamics simulations in both the time and frequency domain, performing simulations in Hilbert space using the density operator formalism. Building on this physics core, `NMRlab.jl` provides a higher level helper module (`GenerateFIDs`) for generating realistic synthetic 1H NMR spectra and time domain FIDs that resemble experimental measurements of complex mixtures motivated by our group's main interest in analysing complex mixtures in biological contexts (metabolomics and metabolic analysis). Because the full pipeline is implemented in Julia and can generate paired clean/dirty data on demand, it provides an effectively unlimited source of training data for machine learning models, and it is also useful for stress testing and validating NMR processing pipelines.
+`NMRflux.jl` includes a lightweight spin dynamics engine (`SpinSim`) for simulating NMR spin evolution. `SpinSim` is designed for generic spin dynamics simulations in both the time and frequency domain, performing simulations in Hilbert space using the density operator formalism. Building on this physics core, `NMRflux.jl` provides a higher level helper module (`GenerateFIDs`) for generating realistic synthetic 1H NMR spectra and time domain FIDs that resemble experimental measurements of complex mixtures motivated by our group's main interest in analysing complex mixtures in biological contexts (metabolomics and metabolic analysis). Because the full pipeline is implemented in Julia and can generate paired clean/dirty data on demand, it provides an effectively unlimited source of training data for machine learning models, and it is also useful for stress testing and validating NMR processing pipelines.
 
-The main entry point is `generateBatch`, which offers a unified, user friendly interface for producing synthetic datasets. It reads all simulation parameters from a TOML configuration file, automatically generates random spin Hamiltonians, computes the corresponding frequency domain spectra, converts them into realistic time domain FIDs, and applies artefacts (e.g. noise, phase errors, solvent peaks, and baseline distortions) to produce *dirty* FIDs. The output is returned as a `SpectData` object, fully compatible with downstream processing tools in `NMRlab.jl`, and can be written to disk in `.jld2` format.
+The main entry point is `generateBatch`, which offers a unified, user friendly interface for producing synthetic datasets. It reads all simulation parameters from a TOML configuration file, automatically generates random spin Hamiltonians, computes the corresponding frequency domain spectra, converts them into realistic time domain FIDs, and applies artefacts (e.g. noise, phase errors, solvent peaks, and baseline distortions) to produce *dirty* FIDs. The output is returned as a `SpectData` object, fully compatible with downstream processing tools in `NMRflux.jl`, and can be written to disk in `.jld2` format.
 
 Each batch follows a clean/dirty pairing convention: **odd-indexed** rows contain **clean** FIDs and the subsequent **even-indexed** rows contain the corresponding artefact-corrupted **dirty** FIDs (row 1 = clean, row 2 = dirty; row 3 = clean, row 4 = dirty; etc.). All simulation behaviour is controlled entirely through the TOML configuration file, ensuring reproducibility and easy tuning of SNR and artefact settings.
 
@@ -599,8 +599,8 @@ Conceptually:
 The main entry point is `GenerateFIDs.generateBatch`, which reads the `TOML` file, builds the Hamiltonians, simulates the spectra using `SpinSim.Spectrum`, converts them to time domain FIDs, applies artefacts, and returns a `SpectData` object.
 
 ```@julia
-using NMRlab
-using NMRlab.GenerateFIDs
+using NMRflux
+using NMRflux.GenerateFIDs
 
 toml_file = joinpath(@DIR, "..", "examples", "synthetic", "Batch16k.toml") # Path to your TOML configuration file (adjust to your repository layout)
 batch = GenerateFIDs.generateBatch(toml_file; saveFile = false)
@@ -614,10 +614,10 @@ The return value batch is a 2D SpectData object:
 - `batch.coord[2]` is the time axis (seconds)
 
 # 6. Deep Learning Spectral Denoiser
-`NMRlab.jl` includes Flux based deep learning tools for applying deep learning to the denoising of NMR spectra. These tools integrate with the `SpectData` structures of `NMRlab` and provide a flexible interface for loading datasets, building denoising models, training them, and applying inference to new FIDs or spectra.
+`NMRflux.jl` includes Flux based deep learning tools for applying deep learning to the denoising of NMR spectra. These tools integrate with the `SpectData` structures of `NMRflux` and provide a flexible interface for loading datasets, building denoising models, training them, and applying inference to new FIDs or spectra.
 
 ## 6.1 Overview
-Many NMR experiments, especially at low concentration or short acquisition times, produce spectra with poor signal-to-noise ratio and various artefacts (baseline distortions, phase errors, solvent residuals, etc.). Classical processing (apodisation, Fourier transform, phase and baseline correction, filtering) can improve the data, but often requires hand tuning and may either oversmooth peaks or leave structured noise. The deep learning spectral denoiser in `NMRlab.jl` addresses this problem by learning a non linear mapping from *artefact corrupted* spectra to their corresponding *clean* spectra. It uses a deep 1D convolutional autoencoder with residual connections, trained on pairs of clean/dirty spectra, to suppress noise and artefacts while preserving peak positions and line shapes. Once trained, the model can be applied to new spectra as an automated denoising step in larger NMR processing or analysis pipelines.
+Many NMR experiments, especially at low concentration or short acquisition times, produce spectra with poor signal-to-noise ratio and various artefacts (baseline distortions, phase errors, solvent residuals, etc.). Classical processing (apodisation, Fourier transform, phase and baseline correction, filtering) can improve the data, but often requires hand tuning and may either oversmooth peaks or leave structured noise. The deep learning spectral denoiser in `NMRflux.jl` addresses this problem by learning a non linear mapping from *artefact corrupted* spectra to their corresponding *clean* spectra. It uses a deep 1D convolutional autoencoder with residual connections, trained on pairs of clean/dirty spectra, to suppress noise and artefacts while preserving peak positions and line shapes. Once trained, the model can be applied to new spectra as an automated denoising step in larger NMR processing or analysis pipelines.
 
 ## 6.2 Data representation
 The denoiser operates on **frequency-domain spectra** stored as `SpectData` objects and saved in `.jld2` files. Each `SpectData` used for training or validation is a 2D complex array where **odd-numbered rows contain clean spectra** and the corresponding **even-numbered rows contain the matching noisy/artefact corrupted spectra**. Internally, the training script normalizes each clean/dirty pair and converts them into `WHCN` tensors: the **input** to the model is the *dirty* spectrum with two channels (real and imaginary parts), and the **target** is the corresponding *clean* spectrum represented by a single channel (real part only). The model therefore learns to map `(W, 2, N)` dirty spectra to `(W, 1, N)` cleaned real spectra, where `W` is the number of frequency points and `N` is the batch size.
@@ -776,7 +776,7 @@ If no ppm config is supplied, plots fall back to a bin index axis, which is stil
   The script sets a global random seed for both Julia's RNG and CUDA (`GLOBAL_SEED`) to ensure fully reproducible training runs.
 
 ## 6.7 Building train/validation sets from synthetic FIDs (convenience script)
-For user convenience, `NMRlab.jl` provides a script `make_train_val_multi_snr_from_synthetic_dir.jl` that scans a directory of synthetic FID batches (from GenerateFIDs) and builds one unified training file with:
+For user convenience, `NMRflux.jl` provides a script `make_train_val_multi_snr_from_synthetic_dir.jl` that scans a directory of synthetic FID batches (from GenerateFIDs) and builds one unified training file with:
 - A single mixed SNR training set
 - Separate validation sets for each SNR value
 
@@ -836,7 +836,7 @@ julia make_train_val_multi_snr_from_synthetic_dir.jl ../examples/synthetic/ ../o
 The resulting `TrainVal_multiSNR_*.jld2` file is ready to be used with `load_multi_snr_loaders`, which will create a shuffled "train" loader with mixed SNRs and non shuffled "val_snr_XXX" loaders for each SNR, for monitoring validation loss by noise level.
 
 ## 6.8 Building test only sets from synthetic FIDs (convenience script)
-For user convenience, `NMRlab.jl` also provides a standalone script `make_test_from_synthetic_dir.jl` that builds test only datasets from synthetic FIDs generated by GenerateFIDs. Given an input directory of `.jld2` files with names starting with `FIDs_` and having `SpectData` stored under the key "batch" and rows ordered as `[clean1, dirty1, clean2, dirty2, ...]` and SNR encoded in the filename (e.g. `FIDs_16384_SNR-1000_0001.jld2`), the script:
+For user convenience, `NMRflux.jl` also provides a standalone script `make_test_from_synthetic_dir.jl` that builds test only datasets from synthetic FIDs generated by GenerateFIDs. Given an input directory of `.jld2` files with names starting with `FIDs_` and having `SpectData` stored under the key "batch" and rows ordered as `[clean1, dirty1, clean2, dirty2, ...]` and SNR encoded in the filename (e.g. `FIDs_16384_SNR-1000_0001.jld2`), the script:
 
 - Loads all FID batches in the directory
 - Zero fills, apodizes, and Fourier transforms them

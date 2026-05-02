@@ -1,5 +1,5 @@
 # 1. Working with SpectData
-`SpectData` is the central data structure in NMRlab.jl. It stores an N-dimensional numerical data array, and one coordinate vector for each dimension, and is defined as a subtype of `AbstractArray{T,N}`. This means that `SpectData` behaves like a regular Julia array in most contexts: it supports indexing, slicing, broadcasting, and can be passed to most numerical functions that expect an array.
+`SpectData` is the central data structure in NMRflux.jl. It stores an N-dimensional numerical data array, and one coordinate vector for each dimension, and is defined as a subtype of `AbstractArray{T,N}`. This means that `SpectData` behaves like a regular Julia array in most contexts: it supports indexing, slicing, broadcasting, and can be passed to most numerical functions that expect an array.
 
 For reference, the type is defined as:
 ```julia
@@ -11,15 +11,15 @@ end
 
 ## 1.1 Loading a simple JOEL dataset
 ```@example joelEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 
 using Plots
 
-data_jeol = NMRlab.Examples.Data["Spheroid culture medium"]
+data_jeol = NMRflux.Examples.Data["Spheroid culture medium"]
 jdf_file  = joinpath(data_jeol["path"], "yp-5-fu-2.5-100.jdf")
 
-params_jeol, data_td_jeol = NMRlab.load(jdf_file, :JEOL)
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
 
 t_jeol = data_td_jeol.coord[1]    # time axis (s)
 y_jeol = real.(data_td_jeol.dat)  # real part

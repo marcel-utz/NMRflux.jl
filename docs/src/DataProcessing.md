@@ -1,5 +1,5 @@
 # 1. Classical Processing Pipeline
-`NMRlab.jl` provides a flexible framework for defining and combining NMR processing operations through the abstract type `NMRProcessor`. Processing tools are implemented as callable objects ("functors") that act on `SpectData` (or, via a fallback, on plain arrays) and can be chained together into processing pipelines. NMRlab.jl provides a number of processing functions built on top of `NMRProcessor`:
+`NMRflux.jl` provides a flexible framework for defining and combining NMR processing operations through the abstract type `NMRProcessor`. Processing tools are implemented as callable objects ("functors") that act on `SpectData` (or, via a fallback, on plain arrays) and can be chained together into processing pipelines. NMRflux.jl provides a number of processing functions built on top of `NMRProcessor`:
 
 ## 1.1 The NMRProcessor abstraction
 At the core of the processing framework is the abstract type:
@@ -27,12 +27,12 @@ x |> p1 |> p2 |> p3
 
 ### Loading a simple dataset
 ```@example brukerEg
-using NMRlab
-using NMRlab.Examples
+using NMRflux
+using NMRflux.Examples
 using Plots: plot, savefig
 
-data_bruker = NMRlab.Examples.Data["HCC cell culture media spectra"]
-params_bruker, data_td_bruker = NMRlab.load(joinpath(data_bruker["path"], "10"), :Bruker)
+data_bruker = NMRflux.Examples.Data["HCC cell culture media spectra"]
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker["path"], "10"), :Bruker)
 
 ```
 
@@ -53,7 +53,7 @@ savefig("loaded_FID.svg"); nothing
 ## 1.3 Zero filling (`ZeroFill`)
 Zero filling extends the length of a time domain FID by appending additional points with value zero. This increases digital resolution in the subsequent Fourier transform but does not add new experimental information. It is usually applied as the first processing step. 
 
-In `NMRlab.jl`, zero filling is implemented by the processor `ZeroFill`, which acts on `SpectData`. It pads the underlying data array with zeros and, if the coordinate axis is evenly spaced (as in a typical time axis), extends that coordinate with the same step size to the new length. Using the time domain Bruker FID defined earlier (`data_td_bruker`):
+In `NMRflux.jl`, zero filling is implemented by the processor `ZeroFill`, which acts on `SpectData`. It pads the underlying data array with zeros and, if the coordinate axis is evenly spaced (as in a typical time axis), extends that coordinate with the same step size to the new length. Using the time domain Bruker FID defined earlier (`data_td_bruker`):
 ```@example brukerEg
 N_orig = length(data_td_bruker.dat) # Original number of points
 N_target = 2^16                     # Target size: 64k points (2^16)
@@ -81,7 +81,7 @@ savefig("bruker_fid_zf_plot.svg"); nothing
 ## 1.4 Apodization (`Apodize`)
 Apodization applies a decay function (window) to the time-domain FID. In practice, this damps the tail of the FID, reducing truncation artefacts and high frequency noise in the frequency domain at the cost of some line broadening. It is typically applied *after* zero filling and before the Fourier transform. 
 
-In `NMRlab.jl`, apodization is implemented by the processor Apodize, which
+In `NMRflux.jl`, apodization is implemented by the processor Apodize, which
 acts on `SpectData` by multiplies the data along selected dimensions by an exponential factor of the form:
 ```@julia
 f(t) = exp.(-R * t)
@@ -112,7 +112,7 @@ savefig("bruker_fid_zf_ap_plot.svg"); nothing
 ## 1.5 Fourier transform (FourierTransform)
 The Fourier transform converts a time domain FID into a frequency domain spectrum. After zero filling and apodization, applying the FFT produces a complex spectrum whose real and imaginary parts can be used for further processing (phase correction, baseline correction, peak picking, etc.).
 
-In `NMRlab.jl`, the processor FourierTransform wraps FFTW's FFT planning and
+In `NMRflux.jl`, the processor FourierTransform wraps FFTW's FFT planning and
 updates the coordinate axes accordingly. For each transformed dimension:
 - The FFT is applied to the data
 - The coordinate axis is replaced by a frequency axis based on the sampling interval (Nyquist theorem)
@@ -209,7 +209,7 @@ After phase correction, spectra often exhibit slowly varying offsets or slopes i
 
 The processor is constructed as:
 ```@julia
-NMRlab.MedianBaselineCorrect(dim; wdw = 256)
+NMRflux.MedianBaselineCorrect(dim; wdw = 256)
 ```
 where:
 - `dim`: dimension along which baseline correction is performed (typically 1 for 1D spectra)
@@ -217,7 +217,7 @@ where:
 
 Example: Continuing from the previous section, we start from the phased frequency domain spectrum `data_fd_bruker_zf_ap_pc`:
 ```@example brukerEg
-mbc = NMRlab.MedianBaselineCorrect(1; wdw = 256)   # baseline correction along frequency dimension
+mbc = NMRflux.MedianBaselineCorrect(1; wdw = 256)   # baseline correction along frequency dimension
 data_fd_bruker_zf_ap_pc_bc = mbc(data_fd_bruker_zf_ap_pc)
 
 size(data_fd_bruker_zf_ap_pc_bc.dat), data_fd_bruker_zf_ap_pc_bc.coord[1][1:5]
@@ -252,11 +252,11 @@ For 1D data, a typical sequence is:
 4. Phase correction
 4. Baseline correction
 
-The `NMRlab.jl` allows these processors to be combined using `Chain`, which applies them in sequence.
+The `NMRflux.jl` allows these processors to be combined using `Chain`, which applies them in sequence.
 
 ```@example brukerEg
 # (1) Loading Bruker data
-params_bruker, data_td_bruker = NMRlab.load(joinpath(data_bruker["path"], "10"), :Bruker)
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker["path"], "10"), :Bruker)
 
 # (1) Zero filling
 N_orig   = length(data_td_bruker.dat)            # Original number of points
@@ -278,7 +278,7 @@ freq_dim = 1                                     # frequency axis is dimension 1
 pc = PhaseCorrect(ph0, ph1, freq_dim)
 
 # (5) Baseline correction on the frequency dimension
-mbc = NMRlab.MedianBaselineCorrect(1; wdw = 256) # window half width = 256 points
+mbc = NMRflux.MedianBaselineCorrect(1; wdw = 256) # window half width = 256 points
 
 # Build the processing chain: ZeroFill -> Apodize -> FT -> Phase -> Baseline
 p = Chain(zf, ap, ft, pc, mbc)
