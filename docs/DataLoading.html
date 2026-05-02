@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Data Loading · NMRflux.jl</title><meta name="title" content="Data Loading · NMRflux.jl"/><meta property="og:title" content="Data Loading · NMRflux.jl"/><meta property="twitter:title" content="Data Loading · NMRflux.jl"/><meta name="description" content="Documentation for NMRflux.jl."/><meta property="og:description" content="Documentation for NMRflux.jl."/><meta property="twitter:description" content="Documentation for NMRflux.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">NMRflux.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="QuickStart.html">Getting Started</a></li></ul></li><li><span class="tocitem">Advanced topics</span><ul><li class="is-active"><a class="tocitem" href="DataLoading.html">Data Loading</a><ul class="internal"><li><a class="tocitem" href="#1.1-Example-datasets"><span>1.1 Example datasets</span></a></li><li><a class="tocitem" href="#1.2-Bruker-Data-High-level-(recommended)"><span>1.2 Bruker Data High-level (recommended)</span></a></li><li><a class="tocitem" href="#1.3-Bruker-Data-(Low-level-FileIO)"><span>1.3 Bruker Data (Low-level FileIO)</span></a></li><li><a class="tocitem" href="#1.4-JEOL-Data-High-level-loading-(recommended)"><span>1.4 JEOL Data High-level loading (recommended)</span></a></li><li><a class="tocitem" href="#1.5-JEOL-data-(low-level-FileIO)"><span>1.5 JEOL data (low-level FileIO)</span></a></li><li><a class="tocitem" href="#1.6-Reconstructing-complex-FID-data"><span>1.6 Reconstructing complex FID data</span></a></li><li><a class="tocitem" href="#1.7-Constructing-a-time-axis"><span>1.7 Constructing a time axis</span></a></li><li><a class="tocitem" href="#1.8-Constructing-a-SpectData-object"><span>1.8 Constructing a SpectData object</span></a></li></ul></li><li><a class="tocitem" href="SpectData.html">SpectData</a></li><li><a class="tocitem" href="DataProcessing.html">Data Processing</a></li><li><a class="tocitem" href="SpinDynamics.html">Spin Dynamics and FID generation</a></li><li><a class="tocitem" href="RINSE.html">RINSE</a></li></ul></li><li><span class="tocitem">Development</span><ul><li><a class="tocitem" href="NMRflux-1.0.html">Roadmap to 1.0</a></li></ul></li><li><span class="tocitem">Reference</span><ul><li><a class="tocitem" href="Reference.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Advanced topics</a></li><li class="is-active"><a href="DataLoading.html">Data Loading</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="DataLoading.html">Data Loading</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/marcel-utz/NMRflux.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/marcel-utz/NMRflux.jl/blob/master/docs/src/DataLoading.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="1.-Loading-NMR-Data"><a class="docs-heading-anchor" href="#1.-Loading-NMR-Data">1. Loading NMR Data</a><a id="1.-Loading-NMR-Data-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Loading-NMR-Data" title="Permalink"></a></h1><p><code>NMRflux.jl</code> provides: Low level, vendor specific readers in the submodule <code>NMRflux.FileIO</code>. These work directly with Bruker and JEOL file formats and return raw time domain arrays and parameter dictionaries. High level processing tools that operate on <code>SpectData</code> objects created from these raw arrays. For convenience, <code>NMRflux.jl</code> comes with example datasets that can be used in the documentation and in interactive sessions.</p><h2 id="1.1-Example-datasets"><a class="docs-heading-anchor" href="#1.1-Example-datasets">1.1 Example datasets</a><a id="1.1-Example-datasets-1"></a><a class="docs-heading-anchor-permalink" href="#1.1-Example-datasets" title="Permalink"></a></h2><p>The example data are stored in the dictionary <code>NMRflux.Examples.Data</code>.</p><pre><code class="language-julia hljs">using NMRflux
+using NMRflux.Examples
+
+data_bruker = NMRflux.Examples.Data[&quot;HCC cell culture media spectra&quot;]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Any} with 9 entries:
+  &quot;name&quot;        =&gt; &quot;HCC cell culture media spectra&quot;
+  &quot;format&quot;      =&gt; &quot;Bruker&quot;
+  &quot;author&quot;      =&gt; &quot;Evie Rogers&quot;
+  &quot;files&quot;       =&gt; [&quot;/Users/mu3q/Dropbox/Source/NMRflux.jl/src/../examples/2023…
+  &quot;reference&quot;   =&gt; &quot;unpublished&quot;
+  &quot;doi&quot;         =&gt; &quot;&quot;
+  &quot;tags&quot;        =&gt; [&quot;microfluidic NMR&quot;, &quot;cells&quot;, &quot;metabolomics&quot;]
+  &quot;description&quot; =&gt; &quot;^1H NMR experiments obtained from the supernatant of HCC ce…
+  &quot;path&quot;        =&gt; &quot;/Users/mu3q/Dropbox/Source/NMRflux.jl/src/../examples/2023-…</code></pre><pre><code class="language-julia hljs">using NMRflux
+using NMRflux.Examples
+
+data_joel = NMRflux.Examples.Data[&quot;Spheroid culture medium&quot;]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Any} with 9 entries:
+  &quot;name&quot;        =&gt; &quot;Spheroid culture medium&quot;
+  &quot;format&quot;      =&gt; &quot;JEOL&quot;
+  &quot;author&quot;      =&gt; &quot;Yaping Li, KIT&quot;
+  &quot;files&quot;       =&gt; [&quot;/Users/mu3q/Dropbox/Source/NMRflux.jl/src/../examples/2025…
+  &quot;reference&quot;   =&gt; &quot;unpublished&quot;
+  &quot;doi&quot;         =&gt; &quot;&quot;
+  &quot;tags&quot;        =&gt; [&quot;microfluidic NMR&quot;, &quot;cells&quot;, &quot;metabolomics&quot;]
+  &quot;description&quot; =&gt; &quot;Initial experiments with culture of MCF-7 cells in the Utz\…
+  &quot;path&quot;        =&gt; &quot;/Users/mu3q/Dropbox/Source/NMRflux.jl/src/../examples/2025-…</code></pre><h2 id="1.2-Bruker-Data-High-level-(recommended)"><a class="docs-heading-anchor" href="#1.2-Bruker-Data-High-level-(recommended)">1.2 Bruker Data High-level (recommended)</a><a id="1.2-Bruker-Data-High-level-(recommended)-1"></a><a class="docs-heading-anchor-permalink" href="#1.2-Bruker-Data-High-level-(recommended)" title="Permalink"></a></h2><p>For most use cases, Bruker data can be loaded via the high-level <code>load</code> function, which returns both the acquisition parameters and a time domain <code>SpectData</code> object:</p><pre><code class="language-julia hljs">data_bruker = NMRflux.Examples.Data[&quot;HCC cell culture media spectra&quot;]
+params_bruker, data_td_bruker = NMRflux.load(joinpath(data_bruker[&quot;path&quot;], &quot;10&quot;), :Bruker)
+
+(params_bruker[&quot;SW_h&quot;], size(data_td_bruker))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(13888.8888888889, (32693,))</code></pre><p>Here:</p><ul><li><code>params_bruker</code> is a dictionary of acquisition parameters parsed from <code>acqus</code>.</li><li><code>data_td_bruker</code> is a <code>SpectData</code> object containing the time domain FID with an appropriate time axis.</li></ul><p>Internally, <code>NMRflux.load(path, :Bruker)</code>:</p><ul><li>Reads acqus and fid using <code>NMRflux.FileIO</code></li><li>Applies the Bruker group-delay correction using the parameter <code>GRPDLY</code></li><li>Constructs the time axis from the sweep width <code>SW_h</code>.</li></ul><p>This saves users from manually computing the dwell time and axis. The loaded FID can be inspected as:</p><pre><code class="language-julia hljs">using Plots: plot, savefig
+
+t = data_td_bruker.coord[1]
+y = real.(data_td_bruker.dat)
+
+plot(t, y, xlabel = &quot;time / s&quot;, ylabel = &quot;signal (a.u.)&quot;, title  = &quot;Bruker FID (real part) - High level loading&quot;) # Plot the real part of the FID
+savefig(&quot;bruker_fid_hl_plot.svg&quot;); nothing # Save figure for Documenter</code></pre><p><img src="bruker_fid_hl_plot.svg" alt/></p><h2 id="1.3-Bruker-Data-(Low-level-FileIO)"><a class="docs-heading-anchor" href="#1.3-Bruker-Data-(Low-level-FileIO)">1.3 Bruker Data (Low-level FileIO)</a><a id="1.3-Bruker-Data-(Low-level-FileIO)-1"></a><a class="docs-heading-anchor-permalink" href="#1.3-Bruker-Data-(Low-level-FileIO)" title="Permalink"></a></h2><p>Power users can work with the low-level Bruker readers in <code>NMRflux.FileIO</code>. These functions operate directly on the raw Bruker files (fid, acqus, etc.) and return:</p><ul><li>A complex FID as a Julia vector</li><li>A dictionary of acquisition parameters</li></ul><p>Using the same example dataset as above, we can read the FID as follows:</p><pre><code class="language-julia hljs">using NMRflux.FileIO
+
+fid_bruker = NMRflux.FileIO.readBrukerFID(joinpath(data_bruker[&quot;path&quot;], &quot;10&quot;, &quot;fid&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">32768-element Vector{ComplexF64}:
+     131.203125 - 181.21875im
+    -496.359375 + 908.015625im
+    431.1171875 - 274.828125im
+       -706.625 + 1392.2265625im
+    1086.328125 - 1282.7421875im
+   -1474.546875 + 2338.7421875im
+    2038.015625 - 2740.5im
+  -2732.1015625 + 4055.1171875im
+   3593.5078125 - 5045.671875im
+    -4740.96875 + 6741.3984375im
+                ⋮
+ -283007.765625 - 183694.90625im
+    -420138.875 + 79240.765625im
+    -175130.375 + 254453.578125im
+  -25309.578125 + 487678.984375im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im</code></pre><p>The <code>fid_bruker</code> is a <code>Vector{ComplexF64}</code> containing the complex time domain data points stored in the Bruker fid file. For older TopSpin 2.0 data, the FID is stored as 32-bit integers; in that case you can specify the format:</p><pre><code class="language-julia hljs">#fid_bruker_old = NMRflux.FileIO.readBrukerFID(&quot;fid&quot;; format = Int32) # Example call for TopSpin 2.0 data
+nothing</code></pre><p>The acquisition parameters are stored in Bruker JCAMP-DX files such as acqus. We can read them using:</p><pre><code class="language-julia hljs">params_bruker = NMRflux.FileIO.readBrukerParameterFile(joinpath(data_bruker[&quot;path&quot;], &quot;10&quot;, &quot;acqus&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Any} with 235 entries:
+  &quot;O4&quot;       =&gt; 4323.3
+  &quot;PCPD&quot;     =&gt; [0, 80, 0, 0, 0, 0, 0, 0, 0, 0]
+  &quot;PLWMAX&quot;   =&gt; Real[137.28, 0, 0, 0, 0, 0, 0, 0]
+  &quot;PQSCALE&quot;  =&gt; 1
+  &quot;TE&quot;       =&gt; 298.0
+  &quot;FQ5LIST&quot;  =&gt; &quot;&lt;&gt;&quot;
+  &quot;RECPRE&quot;   =&gt; [-1, 0, -1, -1, -1, -1, -1, -1, -1, -1  …  -1, -1, -1, -1, -1, …
+  &quot;VPLIST&quot;   =&gt; &quot;&lt;&gt;&quot;
+  &quot;VCLIST&quot;   =&gt; &quot;&lt;&gt;&quot;
+  &quot;O7&quot;       =&gt; 4323.3
+  &quot;FL3&quot;      =&gt; 0
+  &quot;FQ6LIST&quot;  =&gt; &quot;&lt;&gt;&quot;
+  &quot;SW_h&quot;     =&gt; 13888.9
+  &quot;DATATYPE&quot; =&gt; &quot;Parameter Values&quot;
+  &quot;RSEL&quot;     =&gt; [0, 1, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  &quot;CNST&quot;     =&gt; [1, 1, 1, 1, 1, 1, 1, 1, 1, 1  …  1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  &quot;USERA4&quot;   =&gt; &quot;&lt;&gt;&quot;
+  &quot;YMAX_a&quot;   =&gt; 6.494e8
+  &quot;SPOFFS&quot;   =&gt; [0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ⋮          =&gt; ⋮</code></pre><p>The <code>params_bruker</code> is a <code>Dict{String,Any}</code> in which:</p><ul><li>Numeric scalar values are automatically parsed as <code>Int64</code> or <code>Float64</code></li><li>Non-numeric scalars remain as <code>String</code></li><li>Array parameters (such as <code>D0</code>, <code>D1</code>, etc) are returned as Julia vectors whose elements </li></ul><p>are parsed in the same way (<code>integer</code>, <code>float</code>, or <code>string</code>)</p><p>Bruker array parameters such as <code>D0</code>, <code>D1</code>, etc are stored in a single vector <code>params_bruker[&quot;D&quot;]</code>. Because Julia arrays are 1-based, <code>D0</code> corresponds to index <code>1</code>, <code>D1</code> to index <code>2</code>, and so on:</p><pre><code class="language-julia hljs">(params_bruker[&quot;D&quot;][1], params_bruker[&quot;D&quot;][2])  # D0, D1</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(0, 5)</code></pre><p>An important example is the sweep width in Hz, stored in the parameter <code>SW_h</code>. The dwell time (sampling interval) is its inverse, and can be used to construct a time axis:</p><pre><code class="language-julia hljs">dwell     = 1 / params_bruker[&quot;SW_h&quot;]                  # s per point
+time_axis = (0:length(fid_bruker)-1) .* dwell          # explicit time vector
+(dwell, length(time_axis))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(7.199999999999995e-5, 32768)</code></pre><p>The same example can be used to quickly inspect the loaded FID:</p><pre><code class="language-julia hljs">plot(time_axis, real(fid_bruker), xlabel = &quot;time / s&quot;, ylabel = &quot;signal (a.u.)&quot;, title  = &quot;Bruker FID (real part) - Low level loading&quot;) # Plot the real part of the FID
+savefig(&quot;bruker_fid_plot.svg&quot;); nothing # Save figure for Documenter</code></pre><p><img src="bruker_fid_plot.svg" alt/></p><p>With the FID and time axis defined, a time domain <code>SpectData</code> object can be constructed as:</p><pre><code class="language-julia hljs">data_td_bruker = SpectData(fid_bruker, (time_axis,))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">32768-element SpectData{ComplexF64, 1} with coords:(0.0:7.199999999999995e-5:2.3592239999999984,):
+     131.203125 - 181.21875im
+    -496.359375 + 908.015625im
+    431.1171875 - 274.828125im
+       -706.625 + 1392.2265625im
+    1086.328125 - 1282.7421875im
+   -1474.546875 + 2338.7421875im
+    2038.015625 - 2740.5im
+  -2732.1015625 + 4055.1171875im
+   3593.5078125 - 5045.671875im
+    -4740.96875 + 6741.3984375im
+                ⋮
+ -283007.765625 - 183694.90625im
+    -420138.875 + 79240.765625im
+    -175130.375 + 254453.578125im
+  -25309.578125 + 487678.984375im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im
+            0.0 + 0.0im</code></pre><h2 id="1.4-JEOL-Data-High-level-loading-(recommended)"><a class="docs-heading-anchor" href="#1.4-JEOL-Data-High-level-loading-(recommended)">1.4 JEOL Data High-level loading (recommended)</a><a id="1.4-JEOL-Data-High-level-loading-(recommended)-1"></a><a class="docs-heading-anchor-permalink" href="#1.4-JEOL-Data-High-level-loading-(recommended)" title="Permalink"></a></h2><p>JEOL <code>.jdf</code> files contain acquisition parameters and binary data in a single file. JEOL datasets can be loaded using the unified high level loader NMRflux.load, which returns both the acquisition parameters and a time domain <code>SpectData</code> object. Most users can load JEOL data using:</p><pre><code class="language-julia hljs">using Plots
+
+data_jeol = NMRflux.Examples.Data[&quot;Spheroid culture medium&quot;]
+jdf_file  = joinpath(data_jeol[&quot;path&quot;], &quot;yp-5-fu-2.5-100.jdf&quot;)
+
+params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
+
+t_jeol = data_td_jeol.coord[1]    # time axis (s)
+y_jeol = real.(data_td_jeol.dat)  # real part
+
+plot(t_jeol, y_jeol;
+xlabel = &quot;time / s&quot;,
+ylabel = &quot;signal (a.u.)&quot;,
+title = &quot;JEOL FID (real part)&quot;)
+
+savefig(&quot;jeol_fid_plot.svg&quot;); nothing</code></pre><p><img src="jeol_fid_plot.svg" alt/></p><p>The returned values are:</p><ul><li><code>params_jeol</code> :: <code>Dict{String,Any}</code>. A dictionary of JEOL acquisition parameters where each entry is stored as a tuple (scaler, units, value)</li><li><code>data_td_jeol</code> :: <code>SpectData{ComplexF64,1}</code> (or <code>SpectData{ComplexF32,1}</code> depending on the file). A <code>SpectData</code> object containing the reconstructed complex FID and its time axis</li></ul><p>The high level loader performs all low level steps automatically:</p><ul><li>Reads the JEOL header and parameter blocks</li><li>Reconstructs complex time domain data from the stored real/imaginary vectors</li><li>Constructs the correct time axis from the digitization rate in <code>X_SWEEP</code></li><li>Returns a ready-to-use <code>SpectData</code> for downstream processing</li></ul><pre><code class="language-julia hljs">params_jeol, data_td_jeol = NMRflux.load(jdf_file, :JEOL)
+(size(data_td_jeol), params_jeol[&quot;X_SWEEP&quot;][3])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">((23072,), 11261.261261261263)</code></pre><h2 id="1.5-JEOL-data-(low-level-FileIO)"><a class="docs-heading-anchor" href="#1.5-JEOL-data-(low-level-FileIO)">1.5 JEOL data (low-level FileIO)</a><a id="1.5-JEOL-data-(low-level-FileIO)-1"></a><a class="docs-heading-anchor-permalink" href="#1.5-JEOL-data-(low-level-FileIO)" title="Permalink"></a></h2><p>For advanced use, the low-level JEOL reader in <code>NMRflux.FileIO</code> provides direct access to all parts of the .jdf file:</p><pre><code class="language-julia hljs">header_jeol, params_jeol, data_jeol = NMRflux.FileIO.readJEOL(open(jdf_file))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(Dict{String, Any}(&quot;listLength&quot; =&gt; UInt32[0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000], &quot;baseFreq&quot; =&gt; [600.17230460376, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], &quot;author&quot; =&gt; &quot;datum&quot;, &quot;annotateLength&quot; =&gt; 0x00000000, &quot;contextLength&quot; =&gt; 0x00006220, &quot;dataAxisStop&quot; =&gt; [2.0485271999999997, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], &quot;instrument&quot; =&gt; &quot;ECA&quot;, &quot;dataPoints&quot; =&gt; Int32[23072, 1, 1, 1, 1, 1, 1, 1], &quot;totalSize&quot; =&gt; 0x0000000000065440, &quot;annotationOk&quot; =&gt; true…), Dict{String, Any}(&quot;wgh_grad_2_amp&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;Milli&quot;, &quot;Tesla&quot;, 1), (&quot;&quot;, &quot;Meter&quot;, 15), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 60.0), &quot;sawtooth_range&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 4.0), &quot;wgh_x_pulse&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;Micro&quot;, &quot;Second&quot;, 1), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 5.01804), &quot;phase_6&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 180.0), &quot;lowIndex&quot; =&gt; 0x00000000, &quot;changer_slot_position&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 0.0), &quot;get_value_of_field&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], &quot;pulse_service::g&quot;), &quot;TOTAL_SCANS&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 64), &quot;spin_status&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], &quot;SPIN ON         &quot;), &quot;shim_x3z3&quot; =&gt; (0, Tuple{String, String, Int8}[(&quot;&quot;, &quot;Hertz&quot;, 1), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0), (&quot;&quot;, &quot;None&quot;, 0)], 47.300000000000004)…), [-2.1497944882665717e-7, -0.00013950422110987898, -0.0051844162649977935, -0.08807038729465194, -0.08907652978845076, -0.06816492160840142, -0.1196864118719773, 0.02066485740608047, -0.20010019956661748, 0.1504551844350158  …  -0.24293406484935914, -0.06486871065502277, 0.1211813507594912, 0.20009470546198344, 0.27849253911458305, 0.14715037202527512, -0.012573650929477098, -0.15815274425485404, 0.0, 0.0])</code></pre><p>This function returns:</p><ul><li><code>header_jeol</code>: a dictionary with file-level metadata (axes, units, base frequencies, etc.)</li><li><code>params_jeol</code>: a dictionary of JEOL acquisition parameters where each entry is a (scaler, units, value) tuple</li><li><code>data_jeol</code>: a 1-D vector of <code>Vector{Float32}</code> or <code>Vector{Float64}</code> containing the stored data (real part followed by imaginary part) with the layout:</li></ul><pre><code class="language-markdown hljs">[ Re1, Re2, Re3, ..., ReN,  Im1, Im2, Im3, ..., ImN ]</code></pre><p>Some of the metadata fields available in the <code>JEOL</code> header include:</p><pre><code class="language-julia hljs"># header_jeol[&quot;dataAxisStart&quot;]
+# header_jeol[&quot;dataAxisStop&quot;]
+# header_jeol[&quot;dataPoints&quot;]
+# header_jeol[&quot;baseFreq&quot;]
+header_jeol[&quot;zeroPoint&quot;]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8-element Vector{Float64}:
+ 0.2485325519999998
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+ 0.0</code></pre><h2 id="1.6-Reconstructing-complex-FID-data"><a class="docs-heading-anchor" href="#1.6-Reconstructing-complex-FID-data">1.6 Reconstructing complex FID data</a><a id="1.6-Reconstructing-complex-FID-data-1"></a><a class="docs-heading-anchor-permalink" href="#1.6-Reconstructing-complex-FID-data" title="Permalink"></a></h2><p>To reconstruct complex FID values, we split this vector into real and imaginary halves and combine them:</p><pre><code class="language-julia hljs">n     = length(data_jeol)
+cdata = data_jeol[1:n&gt;&gt;1] - im * data_jeol[n&gt;&gt;1+1:end]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">23072-element Vector{ComplexF64}:
+  -2.1497944882665717e-7 - 7.707002455031156e-6im
+ -0.00013950422110987898 - 0.00017234635428217768im
+  -0.0051844162649977935 - 0.05157299135423599im
+    -0.08807038729465194 - 0.21358801463142338im
+    -0.08907652978845076 + 0.1320968426880609im
+    -0.06816492160840142 - 0.2336285920028921im
+     -0.1196864118719773 + 0.25899468673315246im
+     0.02066485740608047 - 0.14237400938472022im
+    -0.20010019956661748 + 0.028457352931816903im
+      0.1504551844350158 + 0.4376629340060086im
+                         ⋮
+      0.2219324698160381 + 0.06486871065502277im
+     0.24239250519559702 - 0.1211813507594912im
+      0.0970754939400109 - 0.20009470546198344im
+    -0.08721091449889644 - 0.27849253911458305im
+     -0.1619749954867644 - 0.14715037202527512im
+    -0.15511019557983385 + 0.012573650929477098im
+     -0.1740184893274526 + 0.15815274425485404im
+                     0.0 - 0.0im
+                     0.0 - 0.0im</code></pre><p>The <code>cdata</code> is now a complex vector containing the time domain JEOL FID.</p><h2 id="1.7-Constructing-a-time-axis"><a class="docs-heading-anchor" href="#1.7-Constructing-a-time-axis">1.7 Constructing a time axis</a><a id="1.7-Constructing-a-time-axis-1"></a><a class="docs-heading-anchor-permalink" href="#1.7-Constructing-a-time-axis" title="Permalink"></a></h2><p>JEOL digitization information is stored in the <code>X_SWEEP</code> parameter. The sweep width is typically in the third element:</p><pre><code class="language-julia hljs">dwell     = 1.0 / params_jeol[&quot;X_SWEEP&quot;][3]
+time_axis = range(0.0, step = dwell, length = length(cdata))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.0:8.879999999999999e-5:2.0487048</code></pre><h2 id="1.8-Constructing-a-SpectData-object"><a class="docs-heading-anchor" href="#1.8-Constructing-a-SpectData-object">1.8 Constructing a SpectData object</a><a id="1.8-Constructing-a-SpectData-object-1"></a><a class="docs-heading-anchor-permalink" href="#1.8-Constructing-a-SpectData-object" title="Permalink"></a></h2><pre><code class="language-julia hljs">data_td_jeol = SpectData(cdata, (time_axis,))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">23072-element SpectData{ComplexF64, 1} with coords:(0.0:8.879999999999999e-5:2.0487048,):
+  -2.1497944882665717e-7 - 7.707002455031156e-6im
+ -0.00013950422110987898 - 0.00017234635428217768im
+  -0.0051844162649977935 - 0.05157299135423599im
+    -0.08807038729465194 - 0.21358801463142338im
+    -0.08907652978845076 + 0.1320968426880609im
+    -0.06816492160840142 - 0.2336285920028921im
+     -0.1196864118719773 + 0.25899468673315246im
+     0.02066485740608047 - 0.14237400938472022im
+    -0.20010019956661748 + 0.028457352931816903im
+      0.1504551844350158 + 0.4376629340060086im
+                         ⋮
+      0.2219324698160381 + 0.06486871065502277im
+     0.24239250519559702 - 0.1211813507594912im
+      0.0970754939400109 - 0.20009470546198344im
+    -0.08721091449889644 - 0.27849253911458305im
+     -0.1619749954867644 - 0.14715037202527512im
+    -0.15511019557983385 + 0.012573650929477098im
+     -0.1740184893274526 + 0.15815274425485404im
+                     0.0 - 0.0im
+                     0.0 - 0.0im</code></pre><p>The acquisition parameters (<code>params_jeol</code>) and header information (<code>header_jeol</code>) may be stored alongside the <code>SpectData</code> object to keep all metadata available for processing.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="QuickStart.html">« Getting Started</a><a class="docs-footer-nextpage" href="SpectData.html">SpectData »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 2 May 2026 22:33">Saturday 2 May 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

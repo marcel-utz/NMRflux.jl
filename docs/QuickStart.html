@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Getting Started · NMRflux.jl</title><meta name="title" content="Getting Started · NMRflux.jl"/><meta property="og:title" content="Getting Started · NMRflux.jl"/><meta property="twitter:title" content="Getting Started · NMRflux.jl"/><meta name="description" content="Documentation for NMRflux.jl."/><meta property="og:description" content="Documentation for NMRflux.jl."/><meta property="twitter:description" content="Documentation for NMRflux.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">NMRflux.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="index.html">Home</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href="QuickStart.html">Getting Started</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#1.-Installation"><span>1. Installation</span></a></li><li class="toplevel"><a class="tocitem" href="#2.-Load-a-dataset-into-SpectData"><span>2. Load a dataset into SpectData</span></a></li><li class="toplevel"><a class="tocitem" href="#3.-Classical-1D-processing-pipeline"><span>3. Classical 1D processing pipeline</span></a></li><li class="toplevel"><a class="tocitem" href="#4.-Synthetic-data-(SpinSim-/-GenerateFIDs)"><span>4. Synthetic data (SpinSim / GenerateFIDs)</span></a></li><li class="toplevel"><a class="tocitem" href="#5.-Toy-deep-learning-example-(SpectData-Flux)"><span>5. Toy deep learning example (SpectData + Flux)</span></a></li><li class="toplevel"><a class="tocitem" href="#End-of-Manual"><span>End of Manual</span></a></li></ul></li></ul></li><li><span class="tocitem">Advanced topics</span><ul><li><a class="tocitem" href="DataLoading.html">Data Loading</a></li><li><a class="tocitem" href="SpectData.html">SpectData</a></li><li><a class="tocitem" href="DataProcessing.html">Data Processing</a></li><li><a class="tocitem" href="SpinDynamics.html">Spin Dynamics and FID generation</a></li><li><a class="tocitem" href="RINSE.html">RINSE</a></li></ul></li><li><span class="tocitem">Development</span><ul><li><a class="tocitem" href="NMRflux-1.0.html">Roadmap to 1.0</a></li></ul></li><li><span class="tocitem">Reference</span><ul><li><a class="tocitem" href="Reference.html">API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href="QuickStart.html">Getting Started</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="QuickStart.html">Getting Started</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/marcel-utz/NMRflux.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/marcel-utz/NMRflux.jl/blob/master/docs/src/QuickStart.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="QuickStart"><a class="docs-heading-anchor" href="#QuickStart">QuickStart</a><a id="QuickStart-1"></a><a class="docs-heading-anchor-permalink" href="#QuickStart" title="Permalink"></a></h1><p><code>NMRflux.jl</code> provides a unified Julia workflow for NMR data loading, classical processing, spin based simulation, and machine learning (Flux). This QuickStart shows the &quot;happy path&quot;:</p><ol><li>Install <code>NMRflux.jl</code></li><li>Load an example dataset into <code>SpectData</code></li><li>Apply a typical 1D processing pipeline with <code>Chain</code></li><li>Run a toy deep learning denoiser using <code>SpectData</code> + Flux</li></ol><h1 id="1.-Installation"><a class="docs-heading-anchor" href="#1.-Installation">1. Installation</a><a id="1.-Installation-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Installation" title="Permalink"></a></h1><p>To install the package from GitHub:</p><pre><code class="language- hljs">import Pkg
+Pkg.add(url = &quot;https://github.com/marcel-utz/NMRflux.jl.git&quot;)</code></pre><p>Once installation is complete:</p><pre><code class="language- hljs">using NMRflux</code></pre><h1 id="2.-Load-a-dataset-into-SpectData"><a class="docs-heading-anchor" href="#2.-Load-a-dataset-into-SpectData">2. Load a dataset into SpectData</a><a id="2.-Load-a-dataset-into-SpectData-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Load-a-dataset-into-SpectData" title="Permalink"></a></h1><p><code>SpectData</code> is the central data structure in <code>NMRflux.jl</code>. It stores:</p><ul><li><code>sd.dat</code> : the numerical array (time domain FID or spectrum)</li><li><code>sd.coord</code>: coordinate vectors for each dimension (time, frequency, ppm, etc)</li></ul><p>The documentation ships with small example datasets accessible via <code>NMRflux.Examples.Data</code>.</p><pre><code class="language-julia hljs">using NMRflux
+using NMRflux.Examples
+using Plots: plot, savefig
+
+data_bruker = NMRflux.Examples.Data[&quot;HCC cell culture media spectra&quot;]
+
+# High level vendor loader (recommended)
+params_bruker, data_td = NMRflux.load(joinpath(data_bruker[&quot;path&quot;], &quot;10&quot;), :Bruker)
+
+t = data_td.coord[1]
+y = real.(data_td.dat)
+
+plot(t, y;
+xlabel = &quot;time / s&quot;,
+ylabel = &quot;signal (a.u.)&quot;,
+title = &quot;Bruker FID (real part)&quot;)
+
+savefig(&quot;quickstart_bruker_fid.svg&quot;); nothing</code></pre><p><img src="quickstart_bruker_fid.svg" alt/></p><h1 id="3.-Classical-1D-processing-pipeline"><a class="docs-heading-anchor" href="#3.-Classical-1D-processing-pipeline">3. Classical 1D processing pipeline</a><a id="3.-Classical-1D-processing-pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Classical-1D-processing-pipeline" title="Permalink"></a></h1><p>Most 1D processing follows a standard pipeline:</p><ol><li>Zero fill (improve digital resolution)</li><li>Apodize (reduce truncation artefacts)</li><li>Fourier transform (FID -&gt; spectrum)</li><li>Phase correction</li><li>Baseline correction</li></ol><p>In <code>NMRflux.jl</code>, processing is implemented via <code>NMRProcessor</code> functors that can be composed using <code>Chain</code>.</p><pre><code class="language-julia hljs">using NMRflux
+using Plots: plot, savefig
+
+# Load again (clean cell in Documenter)
+params_bruker, data_td = NMRflux.load(joinpath(data_bruker[&quot;path&quot;], &quot;10&quot;), :Bruker)
+
+# Typical settings for a 1D spectrum
+N_orig = length(data_td.dat)
+N_target = 2^16
+N_new = max(N_orig, N_target)
+
+# Define mini processors
+zf = ZeroFill([N_new])
+ap = Apodize([0.5]) # time domain exponential decay constant
+ft = FourierTransform([N_new], [1]; fftshift=true)
+pc = PhaseCorrect(0.0, 0.0, 1) # example values (ph0, ph1, dim)
+mbc = NMRflux.MedianBaselineCorrect(1; wdw=256)
+
+p = Chain(zf, ap, ft, pc, mbc) # The main processor
+data_fd = p(data_td) # processed frequency domain SpectData
+
+f = data_fd.coord[1]
+s = real.(data_fd.dat)
+
+plot(f, s, xaxis=:flip,
+xlabel=&quot;frequency / Hz&quot;,
+ylabel=&quot;signal (a.u.)&quot;,
+title=&quot;Processed spectrum (ZF + AP + FT + PC + BC)&quot;)
+
+savefig(&quot;quickstart_processing_pipeline.svg&quot;); nothing</code></pre><p><img src="quickstart_processing_pipeline.svg" alt/></p><h1 id="4.-Synthetic-data-(SpinSim-/-GenerateFIDs)"><a class="docs-heading-anchor" href="#4.-Synthetic-data-(SpinSim-/-GenerateFIDs)">4. Synthetic data (SpinSim / GenerateFIDs)</a><a id="4.-Synthetic-data-(SpinSim-/-GenerateFIDs)-1"></a><a class="docs-heading-anchor-permalink" href="#4.-Synthetic-data-(SpinSim-/-GenerateFIDs)" title="Permalink"></a></h1><p><code>NMRflux.jl</code> includes:</p><ul><li><code>SpinSim</code>: a lightweight Hilbert space simulator for spin dynamics</li><li><code>GenerateFIDs</code>: a user facing module that generates paired clean/dirty synthetic signals via a TOML configuration</li></ul><p>Synthetic batches follow the pairing convention: rows 1, 3, 5, ... are clean rows 2, 4, 6, ... are the corresponding dirty</p><pre><code class="language- hljs">using NMRflux
+using NMRflux.GenerateFIDs
+
+toml_file = joinpath(@DIR, &quot;..&quot;, &quot;examples&quot;, &quot;synthetic&quot;, &quot;Batch16k.toml&quot;)
+
+batch_td = GenerateFIDs.generateBatch(toml_file; saveFile=false)
+size(batch_td.dat) # (2*nbatch, TD)</code></pre><h1 id="5.-Toy-deep-learning-example-(SpectData-Flux)"><a class="docs-heading-anchor" href="#5.-Toy-deep-learning-example-(SpectData-Flux)">5. Toy deep learning example (SpectData + Flux)</a><a id="5.-Toy-deep-learning-example-(SpectData-Flux)-1"></a><a class="docs-heading-anchor-permalink" href="#5.-Toy-deep-learning-example-(SpectData-Flux)" title="Permalink"></a></h1><p>We generate a target spectrum using NMRflux&#39;s classical baseline correction, then train a small Flux model to approximate this mapping. This demonstrates seamless interoperability between <code>SpectData</code>, <code>NMRflux</code> processing pipelines, and <code>Flux</code> models. This toy example demonstrates end-to-end compatibility between:</p><ul><li><code>SpectData</code> (data container)</li><li><code>NMRflux</code> processing tools (FFT pipeline)</li><li><code>Flux</code> (a minimal 1D conv denoiser)</li></ul><pre><code class="language- hljs">using NMRflux, NMRflux.Examples, Flux, Statistics
+
+
+d=NMRflux.Examples.Data[&quot;HCC cell culture media spectra&quot;] # Shipped Bruker example dataset
+_, td = NMRflux.load(joinpath(d[&quot;path&quot;], &quot;10&quot;), :Bruker)  # Load time domain FID as SpectData
+
+N = max(length(td.dat), 2^16)                            # Zero fill to at least 64k points                                      
+sd = NMRflux.Chain(                                       # Standard 1D NMR processing pipeline                                                       
+    NMRflux.ZeroFill([N]),
+    NMRflux.Apodize([0.5]),
+    NMRflux.FourierTransform([N], [1]; fftshift=true)
+)(td)
+
+y = Float32.(real.(sd.dat))                                            # Raw data
+yt = Float32.(real.(NMRflux.MedianBaselineCorrect(1; wdw=256)(sd).dat)) # Target generation
+
+x = Float32.(collect(eachindex(y)) ./ length(y))  # Normalised frequency coordinate
+m = Flux.Chain(Dense(1,16,tanh), Dense(16,1))     # Minimal MLP mapping position -&gt; signal
+opt = Adam(1e-2)                                  # Adam optimiser with small learning rate
+
+for _ in 1:200
+    loss() = Flux.mse(vec(m(reshape(x,1,:))), yt) # MSE between prediction and target
+    gs = Flux.gradient(loss, Flux.params(m))      # Compute gradients of the loss w.r.t. model
+    Flux.update!(opt, Flux.params(m), gs)         # Update model parameters using Adam
+end</code></pre><h1 id="End-of-Manual"><a class="docs-heading-anchor" href="#End-of-Manual">End of Manual</a><a id="End-of-Manual-1"></a><a class="docs-heading-anchor-permalink" href="#End-of-Manual" title="Permalink"></a></h1></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="index.html">« Home</a><a class="docs-footer-nextpage" href="DataLoading.html">Data Loading »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 2 May 2026 22:33">Saturday 2 May 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
