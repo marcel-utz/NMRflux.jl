@@ -105,6 +105,44 @@ become consistent.
 - `.github/workflows/CI.yml`, `CompatHelper.yml`, `TagBot.yml` — no hard-coded package name
 - `LICENSE`, `.gitignore`, `spin_simulation.xml*` — no references
 
+<<<<<<< HEAD
+=======
+## 16. Coworker's documentation pull (post-rename merge)
+
+After merging Manaz's docs branch, ten doc files contain `NMRlab` references
+again (147 in total). These supersede the earlier edits to `docs/src/index.md`
+and `docs/src/Reference.md`, and add eight new files. Plain
+`NMRlab` → `NMRflux` substitution is correct everywhere.
+
+- [x] `docs/src/DataLoading.md` — 24 occurrences replaced
+- [x] `docs/src/DataProcessing.md` — 13 occurrences replaced
+- [x] `docs/src/Manual.md` — 44 occurrences replaced
+- [x] `docs/src/NMRflux-1.0.md` — 7 occurrences replaced
+      (heading on line 1 now reads "Roadmap to NMRflux.jl 1.0")
+- [x] `docs/src/QuickStart.md` — 26 occurrences replaced
+- [x] `docs/src/RINSE.md` — 4 occurrences replaced
+- [x] `docs/src/Reference.md` — 12 occurrences replaced (overwrites earlier rename)
+- [x] `docs/src/SpectData.md` — 5 occurrences replaced
+- [x] `docs/src/SpinDynamics.md` — 4 occurrences replaced
+- [x] `docs/src/index.md` — 8 occurrences replaced (overwrites earlier rename)
+
+### Other things to check after the pull
+
+- [x] `docs/make.jl` — re-applied the `Pkg.activate(joinpath(@__DIR__, ".."))`
+      fix. The fragile `push!(LOAD_PATH, "../src/")` is gone; the script now
+      activates the main `Project.toml` (which has all NMRflux deps +
+      Documenter), so `julia docs/make.jl` works from any directory.
+- [x] `docs/src/NMRflux-1.0.md` — removed the SpecCleaner paragraph
+      (the dangling link to `SpecCleaner.md` plus its surrounding
+      bullet, since the file doesn't exist). Re-add later when
+      `SpecCleaner.md` is written.
+- [ ] After all the above, `pages = [...]` in `docs/make.jl` lists only
+      `index.md`, `QuickStart.md`, `DataLoading.md`, `SpectData.md`,
+      `DataProcessing.md`, `SpinDynamics.md`, `RINSE.md`, `NMRflux-1.0.md`,
+      `Reference.md`. The file `Manual.md` is in `docs/src/` but is not
+      referenced in `pages` — confirm whether it should be added or removed.
+
+>>>>>>> add-docs
 ## Verification (after the changes)
 
 - [x] `grep -ri "NMRlab" .` (excluding `.git/`, `examples/`, and `docs/build/`)
